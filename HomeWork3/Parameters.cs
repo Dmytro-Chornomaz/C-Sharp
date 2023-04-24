@@ -10,7 +10,7 @@ namespace HomeWork3
     {
         public static void TheParameters<R>(this R gun) where R : IInfo, IName
         {
-            Console.WriteLine("This example of a weapon has the following parameters:");
+            Console.WriteLine($"The {gun.Name} has the following parameters:");
             gun.ShowInfo();
         }
     }

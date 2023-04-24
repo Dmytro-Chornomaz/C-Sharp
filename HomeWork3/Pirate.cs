@@ -14,9 +14,11 @@ namespace HomeWork3
 
         public Pirate(P weapon) { this.weapon = weapon; }
 
-        public P Return<Gun>()
+        public Gun<int> Create()
         {
-            return weapon;
+            Gun<int> craftedGun = new Gun<int>("Jack`s Gun", 5);
+
+            return craftedGun;
         }
 
     }    

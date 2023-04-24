@@ -19,7 +19,7 @@ Console.WriteLine();
 bigPistol.TheParameters();
 Console.WriteLine();
 
-var piratesWeapon = jackTheSparrow.Return<int>();
+var piratesWeapon = jackTheSparrow.Create();
 
 piratesWeapon.TheParameters();
 

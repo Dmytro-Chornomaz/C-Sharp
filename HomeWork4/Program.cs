@@ -106,8 +106,8 @@ internal partial class Program
 
         var anonInDictionary = peoplesOver20.GroupBy(x => x.Age)
                                             .Select(x => x.Select(y => new { y.Id, y.Name }));
-                                            
 
+        //10. Using of the Penultimate().
 
         Console.WriteLine("Penultimate element");
 

@@ -1,14 +1,15 @@
-﻿using System.Runtime.CompilerServices;
+﻿using HomeWork4;
+using System.Runtime.CompilerServices;
 
 internal partial class Program
 {
     private static void Main(string[] args)
     {
-        //1. Create an array of numbers from one to 100
+        //1. Create an array of numbers from one to 100.
 
         int[] myArray = Enumerable.Range(1, 100).ToArray();
 
-        //2. Sample only odd LINQ values
+        //2. Sample only odd LINQ values.
 
         int[] oddNumbers = myArray.Where(x => x % 2 == 0).ToArray();
 
@@ -21,7 +22,7 @@ internal partial class Program
 
         Console.WriteLine();
 
-        //3. Sample the squares of these numbers using LINQ
+        //3. Sample the squares of these numbers using LINQ.
 
         int[] squaresOfOddNumbers = oddNumbers.Select(x => x * x).ToArray();
 
@@ -34,7 +35,7 @@ internal partial class Program
 
         Console.WriteLine();
 
-        //4. Find the sum of all elements of an array
+        //4. Find the sum of all elements of an array.
 
         Console.WriteLine("Find the sum of all elements of an array");
 
@@ -44,27 +45,10 @@ internal partial class Program
 
         Console.WriteLine();
 
+        //6. Create a list of instances from step 5 for at least 20 pieces.
 
-    }
-
-        //5. Create a Person class that contains at least 3 fields Name, Id, Age
-
-        public class Person
+        List<Person> peoples = new List<Person>
         {
-        public int Id;
-        public string Name;
-        public int Age;
-        public Person(int id, string name, int age)
-        {
-            Id = id;
-            Name = name;
-            Age = age;
-        }
-        }
-    //6. Create a list of instances from step 5 for at least 20 pieces
-
-    List<Person> peoples = new List<Person>
-    {
             new Person (1, "John", 33),
             new Person (2, "Bill", 27),
             new Person (3, "Anna", 8),
@@ -85,12 +69,55 @@ internal partial class Program
             new Person (18, "Paul", 57),
             new Person (19, "Frank", 32),
             new Person (20, "Richard", 25),
-            
-    };
 
-    //7. Filter people over 20 years old and display their names
+        };
 
-    List<Person> peoplesOver20 = peoples.Where(x => x.Age > 20);
+        //7. Filter people over 20 years old and display their names.
+
+        var peoplesOver20 = peoples.Where(x => x.Age > 20);
+
+        Console.WriteLine("Filter people over 20 years old and display their names");
+
+        foreach (var item in peoplesOver20)
+        {
+            Console.WriteLine($"{item.Id} - {item.Name} - {item.Age}");
+        }
+
+        Console.WriteLine();
+
+        //8. Filter people over the age of 20 and transform them into
+        //anonymous objects with Id, Name fields and alphabetically sorted names.
+
+        var anon = peoplesOver20.Select(x => new {x.Id, x.Name}).OrderBy(x => x.Name);
+
+        Console.WriteLine("Anonymous objects");
+
+        foreach (var item in anon)
+        {
+            Console.WriteLine($"{item.Name} - {item.Id}");
+        }
+
+        Console.WriteLine();
+
+
+        //9. Filter people who are over 20 years old and transform them into
+        //anonymous objects with Id, Name fields by grouping them by age.
+        //Write the result to the Dictionary.
+
+        var anonInDictionary = peoplesOver20.GroupBy(x => x.Age)
+                                            .Select(x => x.Select(y => new { y.Id, y.Name }));
+                                            
+
+
+        Console.WriteLine("Penultimate element");
+
+        int penultimate = myArray.Penultimate();
+
+        Console.WriteLine(penultimate);
+
+        
+}
+
 
 
 

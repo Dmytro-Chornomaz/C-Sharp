@@ -105,15 +105,17 @@ internal partial class Program
         //Write the result to the Dictionary.
 
         var anonInDictionary = peoplesOver20.GroupBy(x => x.Age)
-                                            .Select(x => x.Select(y => new { y.Id, y.Name }));
+        .Select(x => new { Age = x.Key, Persons = x.Select(y => new { y.Age, y.Name })})
+        .ToDictionary(x => x.Age);
 
+        
         //10. Using of the Penultimate().
 
-        Console.WriteLine("Penultimate element");
+        //Console.WriteLine("Penultimate element");
 
-        int penultimate = myArray.Penultimate();
+        //var penultimate = myArray.Penultimate();
 
-        Console.WriteLine(penultimate);
+        //Console.WriteLine(penultimate);
 
         
 }

@@ -109,13 +109,7 @@ internal partial class Program
         .ToDictionary(x => x.Age);
 
         
-        //10. Using of the Penultimate().
-
-        //Console.WriteLine("Penultimate element");
-
-        //var penultimate = myArray.Penultimate();
-
-        //Console.WriteLine(penultimate);
+        
 
         
 }

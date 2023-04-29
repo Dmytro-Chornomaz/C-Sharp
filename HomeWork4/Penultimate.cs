@@ -13,20 +13,11 @@ namespace HomeWork4
         //10. Create your own LINQ method that will return the penultimate element from the end.
         public static IEnumerable<TSource> Penultimate<TSource>(this IEnumerable<TSource> source)
         {
-            //int index = 0;
-
-            //foreach (var element in source)
-            //{
-            //    index++;
-            //}
-
-            //int penultimate = index - 1;
-
-            //yield return source.ToList().ElementAt(penultimate);
+            
 
             source = source.ToList();
             
-            int index = source.Count() - 1;
+            int index = source.Count() - 2;
 
             var answer = source.ElementAt(index);
 

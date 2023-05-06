@@ -22,17 +22,17 @@ await file5;
 
 async Task ReadAndPrintAsync(string path, int color)
 {
-    string pathText = path;
-    
-    int textColor = color;
+    Console.ForegroundColor = (ConsoleColor)color;
 
-    await Task.Delay(1000);
+    using (StreamReader reader = new StreamReader(path))
+    {
+        string? line;
 
-    IEnumerable<string> lines = File.ReadLines(pathText);
-
-    Console.ForegroundColor = (ConsoleColor)textColor;
-
-    Console.WriteLine(String.Join(Environment.NewLine, lines));
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+            Console.WriteLine(line);
+        }
+    }
 
     Console.ResetColor();
 

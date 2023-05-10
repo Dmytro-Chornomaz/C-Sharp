@@ -44,7 +44,7 @@ try
     {
         t.Start();
 
-        if (t.Status == TaskStatus.RanToCompletion)
+        if (t.IsCompleted) //== TaskStatus.RanToCompletion
         { 
             cancelTokenSource.Cancel(); 
         }

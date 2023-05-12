@@ -29,13 +29,15 @@ try
     {
         t.Start();
 
-        if (t.IsCompleted) //== TaskStatus.RanToCompletion
-        { 
-            cancelTokenSource.Cancel(); 
+        Thread.Sleep(1000);
+
+        if (t.IsCompleted)
+        {
+            cancelTokenSource.Cancel();
+            return;
         }
-        
+
         t.Wait();
-        
     }
 
 }
@@ -62,7 +64,7 @@ async Task ReadAndPrintAsync(string path, int color)
 {
     if (token.IsCancellationRequested)
     { 
-        token.ThrowIfCancellationRequested();
+        token.ThrowIfCancellationRequested();        
     }
 
     Console.ForegroundColor = (ConsoleColor)color;

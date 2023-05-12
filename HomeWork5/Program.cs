@@ -34,7 +34,7 @@ try
         if (t.IsCompleted)
         {
             cancelTokenSource.Cancel();
-            return;
+            
         }
 
         t.Wait();

@@ -9,13 +9,13 @@ CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 
 CancellationToken token = cancelTokenSource.Token;
 
-Task task1 = new Task(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File1.txt", (new Random()).Next(0, 15)), token);
-Task task2 = new Task(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File2.txt", (new Random()).Next(0, 15)), token);
-Task task3 = new Task(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File3.txt", (new Random()).Next(0, 15)), token);
-Task task4 = new Task(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File4.txt", (new Random()).Next(0, 15)), token);
-Task task5 = new Task(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File5.txt", (new Random()).Next(0, 15)), token);
+Task task1 = Task.Run(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File1.txt", (new Random()).Next(1, 10)), token);
+Task task2 = Task.Run(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File2.txt", (new Random()).Next(1, 10)), token);
+Task task3 = Task.Run(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File3.txt", (new Random()).Next(1, 10)), token);
+Task task4 = Task.Run(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File4.txt", (new Random()).Next(1, 10)), token);
+Task task5 = Task.Run(() => ReadAndPrintAsync(@"D:\\QA\\C#\\Hillel\\HomeWork5\\File5.txt", (new Random()).Next(1, 10)), token);
 
-List<Task> tasks = new List<Task>(){ task1, task2, task3, task4, task5 };
+List<Task> tasks = new List<Task>() { task1, task2, task3, task4, task5 };
 
 //for (int i = 1; i < 6; i++)
 //{
@@ -27,19 +27,12 @@ try
 {
     foreach (var t in tasks)
     {
-        t.Start();
-
-        Thread.Sleep(1000);
-
-        if (t.IsCompleted)
-        {
-            cancelTokenSource.Cancel();
-            
-        }
-
-        t.Wait();
+        //t.Start();
     }
 
+    Task.WaitAny(tasks.ToArray());
+    cancelTokenSource.Cancel();
+    Task.WaitAll(tasks.ToArray());
 }
 
 catch (AggregateException theException)
@@ -53,35 +46,31 @@ catch (AggregateException theException)
     }
 }
 
-foreach (var t in tasks)
-{
-    Console.WriteLine($"Task Status: {t.Status}");
-}
+//foreach (var t in tasks)
+//{
+//    Console.WriteLine($"Task Status: {t.Status}");
+//}
 
 //-------------------------------------------------------
 
 async Task ReadAndPrintAsync(string path, int color)
 {
-    if (token.IsCancellationRequested)
-    { 
-        token.ThrowIfCancellationRequested();        
-    }
-
-    Console.ForegroundColor = (ConsoleColor)color;
-
     using (StreamReader reader = new StreamReader(path))
     {
         string? line;
 
         while ((line = await reader.ReadLineAsync()) != null)
         {
-            Console.WriteLine(line);
+            if (token.IsCancellationRequested) return;
+
+            lock (Console.Out)
+            {
+                Console.ForegroundColor = (ConsoleColor)color;
+                Console.WriteLine(line);
+                Console.ResetColor();
+            }
         }
     }
-
-    Console.ResetColor();
-
 }
 
 
- 

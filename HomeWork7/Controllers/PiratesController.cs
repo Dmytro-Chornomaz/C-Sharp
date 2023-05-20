@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static HomeWork7.Controllers.PiratesController;
 
 namespace HomeWork7.Controllers
 {
@@ -7,22 +9,35 @@ namespace HomeWork7.Controllers
     [ApiController]
     public class PiratesController : ControllerBase
     {
-        public static List<Pirate> Crew { get; set; } = new List<Pirate> { };
+        public static List<Pirate> Crew { get; set; } = new List<Pirate>
+        {
+            new(){Id = 1, Name = "Jack the Sparrow", Age = "40", Description = "Eccentric with a couple of pistols"},
+            new(){Id = 2, Name = "Billy Bounce", Age = "Old stump", Description = "Pale alcoholic"}
+        };
 
         [HttpGet]
-        public List<Pirate> GetCrew()
+        public ActionResult<List<Pirate>> GetCrew()
         {
+            Ok();
             return Crew;
         }
 
         [HttpGet("{id}")]
-        public Pirate? GetPirate([FromRoute] int id)
+        public ActionResult<Pirate?> GetPirate([FromRoute] int id)
         {
-            return Crew.FirstOrDefault(x => x.Id == id);
+            if (id <= Crew.Count)
+            {
+                Ok();
+                return Crew.FirstOrDefault(x => x.Id == id);
+            }
+            else
+            {
+                return NotFound();                
+            }
         }
 
         [HttpPost]
-        public Pirate AddPirate([FromBody] CreatePirateRequest request)
+        public ActionResult<Pirate> AddPirate([FromBody] CreatePirateRequest request)
         {
             var pirate = new Pirate
             {
@@ -32,27 +47,36 @@ namespace HomeWork7.Controllers
                 Age = request.Age
             };
             Crew.Add(pirate);
+            Ok();
             return pirate;
         }
 
         [HttpDelete("{id}")]
-        public bool DeletePirate([FromRoute] int id)
+        public ActionResult DeletePirate([FromRoute] int id)
         {
             var pirate = Crew.FirstOrDefault(x => x.Id == id);
-            if (pirate == null) return false;            
+            if (pirate == null) return NotFound();
             Crew.Remove(pirate);
-            return true;
+            return Ok();
         }
 
         [HttpPut("{id}")]
-        public Pirate ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
+        public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
         {
-            var pirate = Crew.FirstOrDefault(x => x.Id == id);            
-            pirate.Id = id;
-            pirate.Name = request.Name;
-            pirate.Age = request.Age;
-            pirate.Description = request.Description;
-            return pirate;
+            if (id <= Crew.Count)
+            {
+                var pirate = Crew.FirstOrDefault(x => x.Id == id);
+                pirate.Id = id;
+                pirate.Name = request.Name;
+                pirate.Age = request.Age;
+                pirate.Description = request.Description;
+                Ok();
+                return pirate;
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         public class Pirate

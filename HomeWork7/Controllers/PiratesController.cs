@@ -18,7 +18,6 @@ namespace HomeWork7.Controllers
         [HttpGet]
         public ActionResult<List<Pirate>> GetCrew()
         {
-            Ok();
             return Crew;
         }
 
@@ -27,12 +26,11 @@ namespace HomeWork7.Controllers
         {
             if (id <= Crew.Count)
             {
-                Ok();
                 return Crew.FirstOrDefault(x => x.Id == id);
             }
             else
             {
-                return NotFound();                
+                return NotFound();
             }
         }
 
@@ -47,7 +45,6 @@ namespace HomeWork7.Controllers
                 Age = request.Age
             };
             Crew.Add(pirate);
-            Ok();
             return pirate;
         }
 
@@ -70,7 +67,6 @@ namespace HomeWork7.Controllers
                 pirate.Name = request.Name;
                 pirate.Age = request.Age;
                 pirate.Description = request.Description;
-                Ok();
                 return pirate;
             }
             else

@@ -21,40 +21,32 @@ Console.WriteLine(Serializer(pirate));
 Console.WriteLine(new string('-', 40));
 
 Console.WriteLine("Deserializer:");
-string pairsPropertyAndValue = "<Name>:<Orest>;<Age>:<33>;";
-Console.WriteLine(Deserializer(pairsPropertyAndValue));
+string pairsPropertyAndValue = "<Name>:<Orest>;<Age>:<66>;";
+Deserializer(pairsPropertyAndValue);
 pirate.Print();
 Console.WriteLine(new string('-', 40));
 
 
-
-
-
-Pirate Deserializer(string pairsPropertyAndValue)
+Pirate GenericDeserializer(string pairsPropertyAndValue)
 {
     Type myType = typeof(Pirate);
 
     char[] delimiterChars = { '<', '>', ':', ';' };
 
-    //System.Console.WriteLine($"Original text: {pairsPropertyAndValue}");
-
-    string[] words = pairsPropertyAndValue.Split(delimiterChars);
+    string[] words = pairsPropertyAndValue.Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
 
     List<string> propTitles = new List<string>();
     List<string> propValues = new List<string>();
 
-    for (int i = 0; i < words.Length - 1; i++)
+    for (int i = 0; i < words.Length; i++)
     {
-        if (words[i].Length > 1)
+        if (i == 0 || i % 2 == 0)
         {
-            if (i == 0 || i % 2 == 0)
-            {
-                propValues.Add(words[i]);
-            }
-            else
-            {
-                propTitles.Add(words[i]);
-            }
+            propTitles.Add(words[i]);
+        }
+        else
+        {
+            propValues.Add(words[i]);
         }
     }
 
@@ -70,7 +62,49 @@ Pirate Deserializer(string pairsPropertyAndValue)
         {
             titleProp?.SetValue(pirate, propValues[i]);
         }
-        
+
+    }
+
+    return pirate;
+}
+
+
+Pirate Deserializer(string pairsPropertyAndValue)
+{
+    Type myType = typeof(Pirate);
+
+    char[] delimiterChars = { '<', '>', ':', ';' };
+
+    string[] words = pairsPropertyAndValue.Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+
+    List<string> propTitles = new List<string>();
+    List<string> propValues = new List<string>();
+
+    for (int i = 0; i < words.Length; i++)
+    {
+        if (i == 0 || i % 2 == 0)
+        {
+            propTitles.Add(words[i]);
+        }
+        else
+        {
+            propValues.Add(words[i]);
+        }
+    }
+
+    for (int i = 0; i < propTitles.Count; i++)
+    {
+        var titleProp = myType.GetProperty(propTitles[i]);
+        int number = 0;
+        if (int.TryParse(propValues[i], out number))
+        {
+            titleProp?.SetValue(pirate, number);
+        }
+        else
+        {
+            titleProp?.SetValue(pirate, propValues[i]);
+        }
+
     }
 
     return pirate;

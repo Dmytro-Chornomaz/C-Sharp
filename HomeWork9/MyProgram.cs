@@ -26,46 +26,68 @@ Deserializer(pairsPropertyAndValue);
 pirate.Print();
 Console.WriteLine(new string('-', 40));
 
+Console.WriteLine("GenericDeserializer:");
+string pairsPropertyAndValue2 = "<Name>:<Arseniy>;<Age>:<77>;";
+GenericDeserializer(pairsPropertyAndValue2);
+pirate.Print();
+Console.WriteLine(new string('-', 40));
 
-Pirate GenericDeserializer(string pairsPropertyAndValue)
+
+Pirate GenericDeserializer<T>(T theThing)
 {
     Type myType = typeof(Pirate);
 
     char[] delimiterChars = { '<', '>', ':', ';' };
 
-    string[] words = pairsPropertyAndValue.Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+    Type str = typeof(String);
+    Type thing = typeof(T);
 
-    List<string> propTitles = new List<string>();
-    List<string> propValues = new List<string>();
-
-    for (int i = 0; i < words.Length; i++)
+    if (str.Equals(thing))
     {
-        if (i == 0 || i % 2 == 0)
+        pairsPropertyAndValue = theThing.ToString();
+
+        string[] words = pairsPropertyAndValue.Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+
+        List<string> propTitles = new List<string>();
+        List<string> propValues = new List<string>();
+
+        for (int i = 0; i < words.Length; i++)
         {
-            propTitles.Add(words[i]);
+            if (i == 0 || i % 2 == 0)
+            {
+                propTitles.Add(words[i]);
+            }
+            else
+            {
+                propValues.Add(words[i]);
+            }
         }
-        else
+
+        for (int i = 0; i < propTitles.Count; i++)
         {
-            propValues.Add(words[i]);
+            var titleProp = myType.GetProperty(propTitles[i]);
+
+            int number = 0;
+
+            if (int.TryParse(propValues[i], out number))
+            {
+                titleProp?.SetValue(pirate, number);
+            }
+            else
+            {
+                titleProp?.SetValue(pirate, propValues[i]);
+            }
+
         }
+
+        return pirate;
     }
 
-    for (int i = 0; i < propTitles.Count; i++)
+    else
     {
-        var titleProp = myType.GetProperty(propTitles[i]);
-        int number = 0;
-        if (int.TryParse(propValues[i], out number))
-        {
-            titleProp?.SetValue(pirate, number);
-        }
-        else
-        {
-            titleProp?.SetValue(pirate, propValues[i]);
-        }
-
-    }
-
-    return pirate;
+        Console.WriteLine("Incorrect parameter!");
+        return pirate;
+    }        
 }
 
 Pirate Deserializer(string pairsPropertyAndValue)
@@ -94,7 +116,9 @@ Pirate Deserializer(string pairsPropertyAndValue)
     for (int i = 0; i < propTitles.Count; i++)
     {
         var titleProp = myType.GetProperty(propTitles[i]);
+
         int number = 0;
+
         if (int.TryParse(propValues[i], out number))
         {
             titleProp?.SetValue(pirate, number);

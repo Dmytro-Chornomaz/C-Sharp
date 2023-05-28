@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
@@ -15,45 +16,67 @@ SetProp(pirate, "Name", "Bobby");
 SetProp(pirate, "Weapon", "Bobby");
 Console.WriteLine(new string('-', 40));
 
-Console.WriteLine("Get pairs name - value:");
-Console.WriteLine(Deconstructor(pirate));
-Console.WriteLine(new string('-', 40));
-
-Console.WriteLine("Get serialized pairs:");
+Console.WriteLine("Serializer:");
 Console.WriteLine(Serializer(pirate));
 Console.WriteLine(new string('-', 40));
 
-Console.WriteLine("Get deserialized pirate:");
-var jsonPirate = @"{""Name"":""Oliver"",""Age"":33}";
-pirate = Deserializer(jsonPirate);
+Console.WriteLine("Deserializer:");
+string pairsPropertyAndValue = "<Name>:<Orest>;<Age>:<33>;";
+Console.WriteLine(Deserializer(pairsPropertyAndValue));
 pirate.Print();
 Console.WriteLine(new string('-', 40));
 
-Console.WriteLine("Get deserialized generic pirate:");
-var jsonGenericPirate = @"{""Name"":""Brian"",""Age"":52}";
-pirate = GenericDeserializer<Pirate>(jsonGenericPirate);
-pirate.Print();
-Console.WriteLine(new string('-', 40));
 
-T GenericDeserializer<T>(string pairPropAndValue)
-{
-    T? deserializedPirate = JsonSerializer.Deserialize<T>(pairPropAndValue);
-    return deserializedPirate;
-}
 
-Pirate Deserializer(string pairPropAndValue)
+
+
+Pirate Deserializer(string pairsPropertyAndValue)
 {
-    Pirate? deserializedPirate = JsonSerializer.Deserialize<Pirate>(pairPropAndValue);
-    return deserializedPirate;
+    Type myType = typeof(Pirate);
+
+    char[] delimiterChars = { '<', '>', ':', ';' };
+
+    //System.Console.WriteLine($"Original text: {pairsPropertyAndValue}");
+
+    string[] words = pairsPropertyAndValue.Split(delimiterChars);
+
+    List<string> propTitles = new List<string>();
+    List<string> propValues = new List<string>();
+
+    for (int i = 0; i < words.Length - 1; i++)
+    {
+        if (words[i].Length > 1)
+        {
+            if (i == 0 || i % 2 == 0)
+            {
+                propValues.Add(words[i]);
+            }
+            else
+            {
+                propTitles.Add(words[i]);
+            }
+        }
+    }
+
+    for (int i = 0; i < propTitles.Count; i++)
+    {
+        var titleProp = myType.GetProperty(propTitles[i]);
+        int number = 0;
+        if (int.TryParse(propValues[i], out number))
+        {
+            titleProp?.SetValue(pirate, number);
+        }
+        else
+        {
+            titleProp?.SetValue(pirate, propValues[i]);
+        }
+        
+    }
+
+    return pirate;
 }
 
 string Serializer(Pirate pirate)
-{
-    string result = JsonSerializer.Serialize(pirate);
-    return result;
-}
-
-string Deconstructor(Pirate pirate)
 {
     Type myType = typeof(Pirate);
     string? result = null;
@@ -61,27 +84,12 @@ string Deconstructor(Pirate pirate)
     {
         var titleProp = myType.GetProperty(prop.Name);
         var valueProp = titleProp?.GetValue(pirate);
-        result += $"{prop.Name} - {valueProp} \n";
+        result += $"<{prop.Name}>:<{valueProp}>;";
     }
     return result;
 }
 
 void SetProp(Pirate pirate, string property, string value)
-{
-    Type myType = typeof(Pirate);
-    var titleProp = myType.GetProperty(property);
-    if (titleProp != null)
-    {
-        titleProp?.SetValue(pirate, value);
-        pirate.Print();
-    }
-    else
-    {
-        Console.WriteLine($"The property {property} does not exist!");
-    }
-}
-
-void SetProp2(Pirate pirate, string property, int value)
 {
     Type myType = typeof(Pirate);
     var titleProp = myType.GetProperty(property);
@@ -115,7 +123,7 @@ public class Pirate
 {
     public string Name { get; set; }
     public int Age { get; set; }
-    
+
 
     public Pirate() { }
 

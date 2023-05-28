@@ -68,7 +68,6 @@ Pirate GenericDeserializer(string pairsPropertyAndValue)
     return pirate;
 }
 
-
 Pirate Deserializer(string pairsPropertyAndValue)
 {
     Type myType = typeof(Pirate);

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
-Pirate pirate = new Pirate("Jack", 21);
+Pirate pirate = new Pirate("Jack", 21, "married");
 
 Console.WriteLine("Get property values:");
 GetProp(pirate, "Name");
 GetProp(pirate, "Age");
+GetProp(pirate, "Status");
 GetProp(pirate, "Weapon");
 Console.WriteLine(new string('-', 40));
 
@@ -21,13 +23,13 @@ Console.WriteLine(Serializer(pirate));
 Console.WriteLine(new string('-', 40));
 
 Console.WriteLine("Deserializer:");
-string pairsPropertyAndValue = "<Name>:<Orest>;<Age>:<66>;";
+string pairsPropertyAndValue = "<Name>:<Orest>;<Age>:<66>;<Status>:<alcoholic>;";
 Deserializer(pairsPropertyAndValue);
 pirate.Print();
 Console.WriteLine(new string('-', 40));
 
 Console.WriteLine("GenericDeserializer:");
-string pairsPropertyAndValue2 = "<Name>:<Arseniy>;<Age>:<77>;";
+string pairsPropertyAndValue2 = "<Name>:<Arseniy>;<Age>:<77>;<Status>:<bastard>;";
 GenericDeserializer(pairsPropertyAndValue2);
 pirate.Print();
 Console.WriteLine(new string('-', 40));
@@ -69,13 +71,16 @@ Pirate GenericDeserializer<T>(T theThing)
 
             int number = 0;
 
-            if (int.TryParse(propValues[i], out number))
+            if (Attribute.IsDefined(titleProp, typeof(DisplayAttribute)))
             {
-                titleProp?.SetValue(pirate, number);
-            }
-            else
-            {
-                titleProp?.SetValue(pirate, propValues[i]);
+                if (int.TryParse(propValues[i], out number))
+                {
+                    titleProp?.SetValue(pirate, number);
+                }
+                else
+                {
+                    titleProp?.SetValue(pirate, propValues[i]);
+                }
             }
 
         }
@@ -87,7 +92,7 @@ Pirate GenericDeserializer<T>(T theThing)
     {
         Console.WriteLine("Incorrect parameter!");
         return pirate;
-    }        
+    }
 }
 
 Pirate Deserializer(string pairsPropertyAndValue)
@@ -118,16 +123,18 @@ Pirate Deserializer(string pairsPropertyAndValue)
         var titleProp = myType.GetProperty(propTitles[i]);
 
         int number = 0;
-
-        if (int.TryParse(propValues[i], out number))
+  
+        if (Attribute.IsDefined(titleProp, typeof(DisplayAttribute)))
         {
-            titleProp?.SetValue(pirate, number);
+            if (int.TryParse(propValues[i], out number))
+            {
+                titleProp?.SetValue(pirate, number);
+            }
+            else
+            {
+                titleProp?.SetValue(pirate, propValues[i]);
+            }
         }
-        else
-        {
-            titleProp?.SetValue(pirate, propValues[i]);
-        }
-
     }
 
     return pirate;
@@ -141,7 +148,10 @@ string Serializer(Pirate pirate)
     {
         var titleProp = myType.GetProperty(prop.Name);
         var valueProp = titleProp?.GetValue(pirate);
-        result += $"<{prop.Name}>:<{valueProp}>;";
+        if (Attribute.IsDefined(prop, typeof(DisplayAttribute)))
+        {
+            result += $"<{prop.Name}>:<{valueProp}>;";
+        }
     }
     return result;
 }
@@ -178,9 +188,11 @@ void GetProp(Pirate pirate, string property)
 
 public class Pirate
 {
+    [Display]
     public string Name { get; set; }
+    [Display]
     public int Age { get; set; }
-
+    public string Status { get; set; } = "unknown";
 
     public Pirate() { }
 
@@ -190,6 +202,16 @@ public class Pirate
         Age = age;
     }
 
-    public void Print() => Console.WriteLine($"{Name} is {Age} years old");
+    public Pirate(string name, int age, string status) : this(name, age)
+    {
+        Status = status;
+    }
+
+    public void Print() => Console.WriteLine($"{Name} is {Age} years old. His status is {Status}.");
 }
 
+[AttributeUsage(AttributeTargets.Property)]
+class DisplayAttribute : Attribute
+{
+
+}

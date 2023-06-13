@@ -4,7 +4,7 @@ namespace HomeWork7
 {
     public class Crew : ICrew
     {
-        public static List<Pirate> Pirates { get; set; } = new List<Pirate>
+        public List<Pirate> Pirates { get; set; } = new List<Pirate>
         {
             new(){Id = 1, Name = "Jack the Sparrow", Age = "40", Description = "Eccentric with a couple of pistols"},
             new(){Id = 2, Name = "Billy Bounce", Age = "Old stump", Description = "Pale alcoholic"}

@@ -4,6 +4,8 @@ namespace HomeWork7
 {
     public interface ICrew
     {
-        PiratesController.Pirate GetByName(string name);
+        List<PiratesController.Pirate> Pirates { get; set; }
+
+        PiratesController.Pirate? GetByName(string name);
     }
 }

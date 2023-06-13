@@ -28,7 +28,7 @@ namespace HomeWork7.Controllers
             return crew.Pirates;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("byId/{id}")]
         public ActionResult<Pirate?> GetPirate([FromRoute] int id)
         {
             if (id <= crew.Pirates.Count)
@@ -41,7 +41,7 @@ namespace HomeWork7.Controllers
             }
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("byName/{name}")]
         public ActionResult<Pirate?> GetPirateByName([FromRoute] string name)
         {
             if (crew.Pirates.FirstOrDefault(x => x.Name == name) != null)

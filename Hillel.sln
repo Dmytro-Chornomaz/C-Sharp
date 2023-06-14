@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeWork7", "HomeWork7\Home
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeWork9", "HomeWork9\HomeWork9.csproj", "{CC4BE2AC-3CA1-4335-BF1C-9EE4BEFFD891}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finance Organizer", "Finance Organizer\Finance Organizer.csproj", "{2D762C13-E63B-44CC-8820-C2C892983AE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{CC4BE2AC-3CA1-4335-BF1C-9EE4BEFFD891}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC4BE2AC-3CA1-4335-BF1C-9EE4BEFFD891}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC4BE2AC-3CA1-4335-BF1C-9EE4BEFFD891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D762C13-E63B-44CC-8820-C2C892983AE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D762C13-E63B-44CC-8820-C2C892983AE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D762C13-E63B-44CC-8820-C2C892983AE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D762C13-E63B-44CC-8820-C2C892983AE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

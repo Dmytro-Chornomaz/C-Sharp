@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace Finance_Organizer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class FinanceOrganizerController : ControllerBase
-    {        
+    {
         private readonly IUsers users;
         public FinanceOrganizerController(IUsers users)
         {
@@ -26,13 +27,13 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetAllPersons")]
-        public ActionResult<List<Person>> GetUsers()
+        public ActionResult<List<Person>> GetAllPersons()
         {
             return users.ListOfUsers;
         }
 
         [HttpGet("GetPerson/{name}")]
-        public ActionResult<Person?> GetPersonByName([FromRoute] string name)
+        public ActionResult<Person?> GetPerson([FromRoute] string name)
         {
             if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
             {
@@ -59,6 +60,36 @@ namespace Finance_Organizer.Controllers
                 {
                     return Ok();
                 }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost("AddTransaction/{name}")]
+        public ActionResult<Transaction> AddTransaction([FromRoute] string name, [FromBody] Transaction transaction)
+        {
+            if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
+            {
+                Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);                
+                transaction.Id = person.Account.Transactions.Count + 1;                
+                person.Account.Transactions.Add(transaction);
+                return transaction;
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("AllTransactionsByPerson/{name}")]
+        public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromRoute] string name)
+        {
+            if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
+            {
+                Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+                return person.Account.Transactions;
             }
             else
             {

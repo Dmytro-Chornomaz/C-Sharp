@@ -26,4 +26,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("v2/byName/{name}",
+    (HttpContext requestDelegate) =>
+    {
+        var name = requestDelegate.GetRouteValue("name").ToString();
+        var service = requestDelegate.RequestServices.GetService<ICrew>();
+        var pirate = service.GetByName(name);
+        if (pirate == null) return Results.NoContent();
+        return Results.Ok(pirate);
+    }
+    ).WithName("minAPI").WithOpenApi();
+
 app.Run();

@@ -1,7 +1,8 @@
-﻿namespace Finance_Organizer
+﻿
+namespace Finance_Organizer
 {
     public class Users : IUsers
     {
-        public List<Person> ListOfUsers { get; set; } = new List<Person> { };
+        public List<Person> ListOfUsers { get; set; } = new List<Person> { };        
     }
 }

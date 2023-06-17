@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
+using System;
 
 namespace Finance_Organizer.Controllers
 {
@@ -13,17 +14,24 @@ namespace Finance_Organizer.Controllers
             this.users = users;
         }
 
-        [HttpPost("CreatePerson/{name}")]
-        public ActionResult<Person> CreatePerson([FromRoute] string name)
+        [HttpPost("CreatePerson")]
+        public ActionResult<Person> CreatePerson([FromQuery] string name)
         {
-            Person person = new Person
+            if (name != null)
             {
-                Id = users.ListOfUsers.Count() + 1,
-                Name = name,
-                Account = new Account() { Id = users.ListOfUsers.Count() + 1 }
-            };
-            users.ListOfUsers.Add(person);
-            return person;
+                Person person = new Person
+                {
+                    Id = users.ListOfUsers.Count() + 1,
+                    Name = name,
+                    Account = new Account() { Id = users.ListOfUsers.Count() + 1 }
+                };
+                users.ListOfUsers.Add(person);
+                return person;
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("GetAllPersons")]
@@ -32,12 +40,14 @@ namespace Finance_Organizer.Controllers
             return users.ListOfUsers;
         }
 
-        [HttpGet("GetPerson/{name}")]
-        public ActionResult<Person?> GetPerson([FromRoute] string name)
+        [HttpGet("GetPerson")]
+        public ActionResult<Person> GetPerson([FromQuery] string name)
         {
-            if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
             {
-                return users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+                return person;
             }
             else
             {
@@ -45,10 +55,12 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        [HttpDelete("DeletePerson/{name}")]
-        public ActionResult DeletePerson([FromRoute] string name, string confirmation)
+        [HttpDelete("DeletePerson")]
+        public ActionResult DeletePerson([FromQuery] string name, string confirmation)
         {
-            if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
             {
                 if (confirmation.ToLower() == "yes")
                 {
@@ -67,13 +79,14 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        [HttpPost("AddTransaction/{name}")]
-        public ActionResult<Transaction> AddTransaction([FromRoute] string name, [FromBody] Transaction transaction)
+        [HttpPost("AddTransaction")]
+        public ActionResult<Transaction> AddTransaction([FromQuery] string name, [FromBody] Transaction transaction)
         {
-            if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
-            {
-                Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);                
-                transaction.Id = person.Account.Transactions.Count + 1;                
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
+            {                
+                transaction.Id = person.Account.Transactions.Count + 1;
                 person.Account.Transactions.Add(transaction);
                 return transaction;
             }
@@ -83,17 +96,268 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        [HttpGet("AllTransactionsByPerson/{name}")]
-        public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromRoute] string name)
+        [HttpGet("GetLastTransaction")]
+        public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
-            if (users.ListOfUsers.FirstOrDefault(x => x.Name == name) != null)
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            bool verification = person.Account.Transactions.Count > 0;
+
+            if (person != null && verification)
             {
-                Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+                var lastTransaction = person.Account.Transactions.Last();
+                return lastTransaction;
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete("DeleteLastTransaction")]
+        public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            bool verification = person.Account.Transactions.Count > 0;
+
+            if (person != null && verification)
+            {
+                if (confirmation.ToLower() == "yes")
+                {
+                    var lastTransaction = person.Account.Transactions.Last();
+                    person.Account.Transactions.Remove(lastTransaction);
+                    return NoContent();
+                }
+                else
+                {
+                    return Ok();
+                }
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("GetAllTransactionsByPerson")]
+        public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
+            {
                 return person.Account.Transactions;
             }
             else
             {
                 return NotFound();
+            }
+        }
+
+        [HttpGet("GetExpensesForThisMonth")]
+        public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
+            {
+                DateTime dateTime = DateTime.Now;
+                var transactions = person.Account.Transactions.Where(x => x.Time.Month == dateTime.Month);
+                var categories = transactions.Select(x => x.Categories);
+                if (categories != null)
+                {
+                    var result = Categories.CategoriesSum(categories);
+                    return result;
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("GetExpensesForThisYear")]
+        public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
+            {
+                DateTime dateTime = DateTime.Now;
+                var transactions = person.Account.Transactions.Where(x => x.Time.Year == dateTime.Year);
+                var categories = transactions.Select(x => x.Categories);
+                if (categories != null)
+                {
+                    var result = Categories.CategoriesSum(categories);
+                    return result;
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("GetExpensesForSpecificMonth")]
+        public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            DateTime today = DateTime.Now;
+            bool checkMonth = 12 >= month && month > 0;
+            bool checkYear = today.Year >= year && year > 2021;
+
+            if (checkMonth && checkYear)
+            {
+                if (person != null)
+                {
+                    DateTime dateTime = new DateTime(year, month, 1);
+                    var transactions = person.Account.Transactions
+                        .Where(x => x.Time.Month == dateTime.Month && x.Time.Year == dateTime.Year);
+                    var categories = transactions.Select(x => x.Categories);
+
+                    if (categories != null)
+                    {
+                        var result = Categories.CategoriesSum(categories);
+                        return result;
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("GetExpensesForSpecificYear")]
+        public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            DateTime today = DateTime.Now;
+            bool checkYear = today.Year >= year && year > 2021;
+            if (checkYear)
+            {
+                if (person != null)
+                {
+                    DateTime dateTime = new DateTime(year, 1, 1);
+                    var transactions = person.Account.Transactions
+                        .Where(x => x.Time.Year == dateTime.Year);
+                    var categories = transactions.Select(x => x.Categories);
+
+                    if (categories != null)
+                    {
+                        var result = Categories.CategoriesSum(categories);
+                        return result;
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("GetExpensesForLastWeek")]
+        public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            if (person != null)
+            {
+                DateTime dateTime = DateTime.Now;
+                DateTime weekAgo = dateTime.AddDays(-7);
+                var transactions = person.Account.Transactions.Where(x => x.Time >= weekAgo);
+                var categories = transactions.Select(x => x.Categories);
+                if (categories != null)
+                {
+                    var result = Categories.CategoriesSum(categories);
+                    return result;
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("GetExpensesForSpecificPeriod")]
+        public ActionResult<Categories> GetExpensesForSpecificPeriod
+            ([FromQuery] string name, int dayStart, int monthStart, int yearStart, int dayEnd, int monthEnd, int yearEnd)
+        {
+            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+
+            DateTime today = DateTime.Now;
+
+            int daysInMonthStart = DateTime.DaysInMonth(yearStart, monthStart);
+            bool checkDayStart = daysInMonthStart >= dayStart && dayStart > 0;
+            bool checkMonthStart = 12 >= monthStart && monthStart > 0;
+            bool checkYearStart = today.Year >= yearStart && yearStart > 2021;
+
+            int daysInMonthEnd = DateTime.DaysInMonth(yearEnd, monthEnd);
+            bool checkDayEnd = daysInMonthEnd >= dayEnd && dayEnd > 0;
+            bool checkMonthEnd = 12 >= monthEnd && monthEnd > 0;
+            bool checkYearEnd = today.Year >= yearEnd && yearEnd > 2021;
+
+            bool yearsComparison = yearStart <= yearEnd;
+
+            if (checkDayStart && checkMonthStart && checkYearStart && checkDayEnd && checkMonthEnd && checkYearEnd && yearsComparison)
+            {
+                if (person != null)
+                {
+                    DateTime dateStart = new DateTime(yearStart, monthStart, dayStart);
+                    DateTime dateEnd = new DateTime(yearEnd, monthEnd, dayEnd);
+
+                    var transactions = person.Account.Transactions
+                        .Where(x => x.Time >= dateStart && x.Time <= dateEnd);
+                    var categories = transactions.Select(x => x.Categories);
+
+                    if (categories != null)
+                    {
+                        var result = Categories.CategoriesSum(categories);
+                        return result;
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return BadRequest();
             }
         }
     }

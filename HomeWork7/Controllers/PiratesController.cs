@@ -78,6 +78,7 @@ namespace HomeWork7.Controllers
             return Ok();
         }
 
+        [PirateFilter]
         [HttpPut("{id}")]
         public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
         {

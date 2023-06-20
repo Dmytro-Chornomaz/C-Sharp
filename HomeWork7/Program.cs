@@ -2,6 +2,11 @@ using HomeWork7;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers(x =>
+{
+    x.Filters.Add(typeof(PirateFilter));
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -23,6 +28,20 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        Console.WriteLine($"Before: path is {context.Request.Path} and method is {context.Request.Method}");
+        await next();
+        Console.WriteLine($"After: path is {context.Request.Path} and method is {context.Request.Method}");
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+    }
+});
 
 app.MapControllers();
 

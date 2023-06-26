@@ -25,7 +25,6 @@ namespace Finance_Organizer.Controllers
                 {
                     Id = id,
                     Name = name,
-                    Account = new Account() { Id = id }
                 };
                 users.ListOfUsers.Add(person);
                 return person;
@@ -88,11 +87,11 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                transaction.AccountId = person.Account.Id;
-                transaction.Categories.AccountId = transaction.AccountId;
-                transaction.Id = person.Account.Transactions.Count + 1;
+                transaction.PersonId = person.Id;
+                transaction.Categories.PersonId = transaction.PersonId;
+                transaction.Id = person.Transactions.Count + 1;
                 transaction.Categories.Id = transaction.Id;
-                person.Account.Transactions.Add(transaction);
+                person.Transactions.Add(transaction);
                 return transaction;
             }
             else
@@ -105,11 +104,11 @@ namespace Finance_Organizer.Controllers
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
             Person person = users.GetPersonByName(name);
-            bool verification = person.Account.Transactions.Count > 0;
+            bool verification = person.Transactions.Count > 0;
 
             if (person != null && verification)
             {
-                var lastTransaction = person.Account.Transactions.Last();
+                var lastTransaction = person.Transactions.Last();
                 return lastTransaction;
             }
             else
@@ -122,14 +121,14 @@ namespace Finance_Organizer.Controllers
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
             Person person = users.GetPersonByName(name);
-            bool verification = person.Account.Transactions.Count > 0;
+            bool verification = person.Transactions.Count > 0;
 
             if (person != null && verification)
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    var lastTransaction = person.Account.Transactions.Last();
-                    person.Account.Transactions.Remove(lastTransaction);
+                    var lastTransaction = person.Transactions.Last();
+                    person.Transactions.Remove(lastTransaction);
                     return NoContent();
                 }
                 else
@@ -151,7 +150,7 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                return person.Account.Transactions;
+                return person.Transactions;
             }
             else
             {
@@ -167,7 +166,7 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 DateTime dateTime = DateTime.Now;
-                var transactions = person.Account.Transactions.Where(x => x.Time.Month == dateTime.Month);
+                var transactions = person.Transactions.Where(x => x.Time.Month == dateTime.Month);
                 var categories = transactions.Select(x => x.Categories);
                 if (categories != null)
                 {
@@ -193,7 +192,7 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 DateTime dateTime = DateTime.Now;
-                var transactions = person.Account.Transactions.Where(x => x.Time.Year == dateTime.Year);
+                var transactions = person.Transactions.Where(x => x.Time.Year == dateTime.Year);
                 var categories = transactions.Select(x => x.Categories);
                 if (categories != null)
                 {
@@ -225,7 +224,7 @@ namespace Finance_Organizer.Controllers
                 if (person != null)
                 {
                     DateTime dateTime = new DateTime(year, month, 1);
-                    var transactions = person.Account.Transactions
+                    var transactions = person.Transactions
                         .Where(x => x.Time.Month == dateTime.Month && x.Time.Year == dateTime.Year);
                     var categories = transactions.Select(x => x.Categories);
 
@@ -262,7 +261,7 @@ namespace Finance_Organizer.Controllers
                 if (person != null)
                 {
                     DateTime dateTime = new DateTime(year, 1, 1);
-                    var transactions = person.Account.Transactions
+                    var transactions = person.Transactions
                         .Where(x => x.Time.Year == dateTime.Year);
                     var categories = transactions.Select(x => x.Categories);
 
@@ -296,7 +295,7 @@ namespace Finance_Organizer.Controllers
             {
                 DateTime dateTime = DateTime.Now;
                 DateTime weekAgo = dateTime.AddDays(-7);
-                var transactions = person.Account.Transactions.Where(x => x.Time >= weekAgo);
+                var transactions = person.Transactions.Where(x => x.Time >= weekAgo);
                 var categories = transactions.Select(x => x.Categories);
                 if (categories != null)
                 {
@@ -341,7 +340,7 @@ namespace Finance_Organizer.Controllers
                     DateTime dateStart = new DateTime(yearStart, monthStart, dayStart);
                     DateTime dateEnd = new DateTime(yearEnd, monthEnd, dayEnd);
 
-                    var transactions = person.Account.Transactions
+                    var transactions = person.Transactions
                         .Where(x => x.Time >= dateStart && x.Time <= dateEnd);
                     var categories = transactions.Select(x => x.Categories);
 

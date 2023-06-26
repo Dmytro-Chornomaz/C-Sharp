@@ -209,23 +209,23 @@ Person dimon = new Person()
 {
     Id = 1,
     Name = "Dimon",
-    Account = new()
-    {
-        Id = 1,
-        Transactions = new() { transactionD1, transactionD2, transactionD3,
+
+
+
+    Transactions = new() { transactionD1, transactionD2, transactionD3,
             transactionD4, transactionD5, transactionD6 }
-    }
+
 };
 Person adolf = new Person()
 {
     Id = 2,
     Name = "Adolf",
-    Account = new()
-    {
-        Id = 2,
-        Transactions = new() { transactionA1, transactionA2, transactionA3,
+
+
+
+    Transactions = new() { transactionA1, transactionA2, transactionA3,
             transactionA4, transactionA5, transactionA6 }
-    }
+
 };
 
 List<Person> people = new List<Person>() { };
@@ -262,7 +262,7 @@ void GetExpensesForSpecificPeriod
 
 
         var person = people.FirstOrDefault(x => x.Name == name);
-        var transactions = person.Account.Transactions
+        var transactions = person.Transactions
             .Where(x => x.Time >= dateStart && x.Time <= dateEnd);
         var categories = transactions.Select(x => x.Categories);
 
@@ -284,7 +284,7 @@ void GetExpensesForLastWeek(string name)
     var person = people.FirstOrDefault(x => x.Name == name);
     DateTime dateTime = DateTime.Now;
     DateTime weekAgo = dateTime.AddDays(-7);
-    var transactions = person.Account.Transactions.Where(x => x.Time >= weekAgo);
+    var transactions = person.Transactions.Where(x => x.Time >= weekAgo);
     var categories = transactions.Select(x => x.Categories);
 
     var result = CategoriesSum(categories);
@@ -297,7 +297,7 @@ void GetExpensesForThisMonth(string name)
 {
     var person = people.FirstOrDefault(x => x.Name == name);
     DateTime dateTime = DateTime.Now;
-    var transactions = person.Account.Transactions.Where(x => x.Time.Month == dateTime.Month);
+    var transactions = person.Transactions.Where(x => x.Time.Month == dateTime.Month);
     var categories = transactions.Select(x => x.Categories);
 
     var result = CategoriesSum(categories);
@@ -310,7 +310,7 @@ void GetExpensesForSpecificMonth(string name, int month, int year)
 {
     var person = people.FirstOrDefault(x => x.Name == name);
     DateTime dateTime = new DateTime(year, month, 1);
-    var transactions = person.Account.Transactions
+    var transactions = person.Transactions
         .Where(x => x.Time.Month == dateTime.Month && x.Time.Year == dateTime.Year);
     var categories = transactions.Select(x => x.Categories);
 

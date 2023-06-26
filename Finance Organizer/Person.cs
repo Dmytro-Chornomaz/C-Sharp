@@ -4,6 +4,6 @@ namespace Finance_Organizer
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public Account Account { get; set; }
+        public List<Transaction> Transactions { get; set; } = new List<Transaction> { };
     }
 }

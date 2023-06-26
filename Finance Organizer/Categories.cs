@@ -1,8 +1,8 @@
 ﻿namespace Finance_Organizer
 {
-    public class Categories : ICategories
+    public class Categories
     {
-        public int AccountId { get; set; }
+        public int PersonId { get; set; }
         public int Id { get; set; }
 
         private double meal = 0;

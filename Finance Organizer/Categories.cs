@@ -2,6 +2,9 @@
 {
     public class Categories : ICategories
     {
+        public int AccountId { get; set; }
+        public int Id { get; set; }
+
         private double meal = 0;
         private double communalServices = 0;
         private double medicine = 0;

@@ -19,11 +19,13 @@ namespace Finance_Organizer.Controllers
         {
             if (name != null)
             {
+                int id = users.ListOfUsers.Count() + 1;
+
                 Person person = new Person
                 {
-                    Id = users.ListOfUsers.Count() + 1,
+                    Id = id,
                     Name = name,
-                    Account = new Account() { Id = users.ListOfUsers.Count() + 1 }
+                    Account = new Account() { Id = id }
                 };
                 users.ListOfUsers.Add(person);
                 return person;
@@ -43,7 +45,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetPerson")]
         public ActionResult<Person> GetPerson([FromQuery] string name)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
@@ -58,7 +60,7 @@ namespace Finance_Organizer.Controllers
         [HttpDelete("DeletePerson")]
         public ActionResult DeletePerson([FromQuery] string name, string confirmation)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
@@ -82,11 +84,14 @@ namespace Finance_Organizer.Controllers
         [HttpPost("AddTransaction")]
         public ActionResult<Transaction> AddTransaction([FromQuery] string name, [FromBody] Transaction transaction)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
-            {                
+            {
+                transaction.AccountId = person.Account.Id;
+                transaction.Categories.AccountId = transaction.AccountId;
                 transaction.Id = person.Account.Transactions.Count + 1;
+                transaction.Categories.Id = transaction.Id;
                 person.Account.Transactions.Add(transaction);
                 return transaction;
             }
@@ -99,7 +104,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetLastTransaction")]
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
             bool verification = person.Account.Transactions.Count > 0;
 
             if (person != null && verification)
@@ -116,7 +121,7 @@ namespace Finance_Organizer.Controllers
         [HttpDelete("DeleteLastTransaction")]
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
             bool verification = person.Account.Transactions.Count > 0;
 
             if (person != null && verification)
@@ -142,7 +147,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetAllTransactionsByPerson")]
         public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
@@ -157,7 +162,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForThisMonth")]
         public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
@@ -183,7 +188,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForThisYear")]
         public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
@@ -209,7 +214,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificMonth")]
         public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkMonth = 12 >= month && month > 0;
@@ -248,7 +253,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificYear")]
         public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkYear = today.Year >= year && year > 2021;
@@ -285,7 +290,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForLastWeek")]
         public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
@@ -313,7 +318,7 @@ namespace Finance_Organizer.Controllers
         public ActionResult<Categories> GetExpensesForSpecificPeriod
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, int dayEnd, int monthEnd, int yearEnd)
         {
-            Person person = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
+            Person person = users.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
 

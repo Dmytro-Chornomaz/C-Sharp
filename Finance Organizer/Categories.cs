@@ -2,8 +2,8 @@
 {
     public class Categories
     {
-        public int PersonId { get; set; }
-        public int Id { get; set; }
+        //public int PersonId { get; set; }
+        //public int Id { get; set; }
 
         private double meal = 0;
         private double communalServices = 0;

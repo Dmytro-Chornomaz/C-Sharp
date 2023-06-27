@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using System;
+using System.Transactions;
 
 namespace Finance_Organizer.Controllers
 {
@@ -80,17 +81,51 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        [HttpPost("AddTransaction")]
-        public ActionResult<Transaction> AddTransaction([FromQuery] string name, [FromBody] Transaction transaction)
+        [HttpPost("AddTransactionFromBody")]
+        public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
         {
             Person person = users.GetPersonByName(name);
 
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                transaction.Categories.PersonId = transaction.PersonId;
+                //transaction.Categories.PersonId = transaction.PersonId;
                 transaction.Id = person.Transactions.Count + 1;
-                transaction.Categories.Id = transaction.Id;
+                //transaction.Categories.Id = transaction.Id;
+                person.Transactions.Add(transaction);
+                return transaction;
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost("AddTransaction")]
+        public ActionResult<Transaction> AddTransaction
+            ([FromQuery] string name, string transactionName, double meal, double communalServices, double medicine, 
+            double transport, double purchases, double leisure, double savings, string comment)
+        {
+            Person person = users.GetPersonByName(name);
+            Transaction transaction = new Transaction();
+
+            if (person != null)
+            {
+                transaction.PersonId = person.Id;
+                //transaction.Categories.PersonId = transaction.PersonId;
+                transaction.Id = person.Transactions.Count + 1;
+                //transaction.Categories.Id = transaction.Id;
+                transaction.Name = transactionName;
+                transaction.Comment = comment;
+
+                transaction.Categories.Meal = meal;
+                transaction.Categories.CommunalServices = communalServices;
+                transaction.Categories.Medicine = medicine;
+                transaction.Categories.Transport = transport;
+                transaction.Categories.Purchases = purchases;
+                transaction.Categories.Leisure = leisure;
+                transaction.Categories.Savings = savings;
+
                 person.Transactions.Add(transaction);
                 return transaction;
             }

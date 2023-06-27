@@ -1,5 +1,4 @@
-﻿
-namespace Finance_Organizer
+﻿namespace Finance_Organizer
 {
     public class Users : IUsers
     {

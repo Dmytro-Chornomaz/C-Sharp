@@ -38,8 +38,6 @@
                 result.Savings += cat.Savings;
             }
             return result;
-        }
-
-        //comment
+        }        
     }
 }

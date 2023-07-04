@@ -9,31 +9,37 @@ namespace HomeWork7.Controllers
     [ApiController]
     public class PiratesController : ControllerBase
     {
-        //public static List<Pirate> Crew { get; set; } = new List<Pirate>
+        //private readonly ICrew crew;
+
+        //public PiratesController(ICrew crew)
         //{
-        //    new(){Id = 1, Name = "Jack the Sparrow", Age = "40", Description = "Eccentric with a couple of pistols"},
-        //    new(){Id = 2, Name = "Billy Bounce", Age = "Old stump", Description = "Pale alcoholic"}
-        //};
+        //    this.crew = crew;
+        //}
 
-        private readonly ICrew crew;
+        private readonly IPiratesRepository piratesRepository;
 
-        public PiratesController(ICrew crew)
+        public PiratesController(IPiratesRepository piratesRepository)
         {
-            this.crew = crew;
+            this.piratesRepository = piratesRepository;
         }
 
         [HttpGet]
         public ActionResult<List<Pirate>> GetCrew()
         {
-            return crew.Pirates;
+            //return crew.Pirates;
+            return piratesRepository.Context.PiratesDB.ToList();
         }
 
         [HttpGet("byId/{id}")]
         public ActionResult<Pirate?> GetPirate([FromRoute] int id)
         {
-            if (id <= crew.Pirates.Count)
+            //if (id <= crew.Pirates.Count)
+            //{
+            //    return crew.Pirates.FirstOrDefault(x => x.Id == id);
+            //}
+            if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
             {
-                return crew.Pirates.FirstOrDefault(x => x.Id == id);
+                return piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
             }
             else
             {
@@ -44,10 +50,15 @@ namespace HomeWork7.Controllers
         [HttpGet("byName/{name}")]
         public ActionResult<Pirate?> GetPirateByName([FromRoute] string name)
         {
-            if (crew.Pirates.FirstOrDefault(x => x.Name == name) != null)
-            {
+            //if (crew.Pirates.FirstOrDefault(x => x.Name == name) != null)
+            //{
                 
-                return crew.GetByName(name);
+            //    return crew.GetByName(name);
+            //}
+            if (piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Name == name) != null)
+            {
+
+                return piratesRepository.GetByName(name);
             }
             else
             {
@@ -60,35 +71,38 @@ namespace HomeWork7.Controllers
         {
             var pirate = new Pirate
             {
-                Id = crew.Pirates.Count + 1,
+                Id = piratesRepository.Context.PiratesDB.ToList().Count + 1,
                 Name = request.Name,
                 Description = request.Description,
                 Age = request.Age
             };
-            crew.Pirates.Add(pirate);
+            piratesRepository.Context.PiratesDB.Add(pirate);
+            piratesRepository.Context.SaveChanges();
             return pirate;
         }
 
         [HttpDelete("{id}")]
         public ActionResult DeletePirate([FromRoute] int id)
         {
-            var pirate = crew.Pirates.FirstOrDefault(x => x.Id == id);
+            var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
             if (pirate == null) return NotFound();
-            crew.Pirates.Remove(pirate);
+            piratesRepository.Context.PiratesDB.Remove(pirate);
+            piratesRepository.Context.SaveChanges();
             return Ok();
         }
 
-        [PirateFilter]
+        //[PirateFilter]
         [HttpPut("{id}")]
         public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
         {
-            if (id <= crew.Pirates.Count)
+            if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
             {
-                var pirate = crew.Pirates.FirstOrDefault(x => x.Id == id);
+                var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
                 pirate.Id = id;
                 pirate.Name = request.Name;
                 pirate.Age = request.Age;
                 pirate.Description = request.Description;
+                piratesRepository.Context.SaveChanges();
                 return pirate;
             }
             else

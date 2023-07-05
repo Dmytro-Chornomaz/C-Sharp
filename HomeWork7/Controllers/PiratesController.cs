@@ -26,88 +26,96 @@ namespace HomeWork7.Controllers
         [HttpGet]
         public ActionResult<List<Pirate>> GetCrew()
         {
-            //return crew.Pirates;
-            return piratesRepository.Context.PiratesDB.ToList();
+            using (piratesRepository.Context)
+            {
+                return piratesRepository.Context.PiratesDB.ToList();
+            }
         }
 
         [HttpGet("byId/{id}")]
         public ActionResult<Pirate?> GetPirate([FromRoute] int id)
         {
-            //if (id <= crew.Pirates.Count)
-            //{
-            //    return crew.Pirates.FirstOrDefault(x => x.Id == id);
-            //}
-            if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
+            using (piratesRepository.Context)
             {
-                return piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
-            }
-            else
-            {
-                return NotFound();
+                if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
+                {
+                    return piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
 
         [HttpGet("byName/{name}")]
         public ActionResult<Pirate?> GetPirateByName([FromRoute] string name)
         {
-            //if (crew.Pirates.FirstOrDefault(x => x.Name == name) != null)
-            //{
-                
-            //    return crew.GetByName(name);
-            //}
-            if (piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Name == name) != null)
+            using (piratesRepository.Context)
             {
+                if (piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Name == name) != null)
+                {
 
-                return piratesRepository.GetByName(name);
-            }
-            else
-            {
-                return NotFound();
+                    return piratesRepository.GetByName(name);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
 
         [HttpPost]
         public ActionResult<Pirate> AddPirate([FromBody] CreatePirateRequest request)
         {
-            var pirate = new Pirate
+            using (piratesRepository.Context)
             {
-                Id = piratesRepository.Context.PiratesDB.ToList().Count + 1,
-                Name = request.Name,
-                Description = request.Description,
-                Age = request.Age
-            };
-            piratesRepository.Context.PiratesDB.Add(pirate);
-            piratesRepository.Context.SaveChanges();
-            return pirate;
+                var pirate = new Pirate
+                {
+                    Id = piratesRepository.Context.PiratesDB.ToList().Count + 1,
+                    Name = request.Name,
+                    Description = request.Description,
+                    Age = request.Age
+                };
+                piratesRepository.Context.PiratesDB.Add(pirate);
+                piratesRepository.Context.SaveChanges();
+                return pirate;
+            }
         }
 
         [HttpDelete("{id}")]
         public ActionResult DeletePirate([FromRoute] int id)
         {
-            var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
-            if (pirate == null) return NotFound();
-            piratesRepository.Context.PiratesDB.Remove(pirate);
-            piratesRepository.Context.SaveChanges();
-            return Ok();
+            using (piratesRepository.Context)
+            {
+                var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+                if (pirate == null) return NotFound();
+                piratesRepository.Context.PiratesDB.Remove(pirate);
+                piratesRepository.Context.SaveChanges();
+                return Ok();
+            }
         }
 
         //[PirateFilter]
         [HttpPut("{id}")]
         public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
         {
-            if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
+            using (piratesRepository.Context)
             {
-                var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
-                pirate.Id = id;
-                pirate.Name = request.Name;
-                pirate.Age = request.Age;
-                pirate.Description = request.Description;
-                piratesRepository.Context.SaveChanges();
-                return pirate;
-            }
-            else
-            {
-                return NotFound();
+                if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
+                {
+                    var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+                    pirate.Id = id;
+                    pirate.Name = request.Name;
+                    pirate.Age = request.Age;
+                    pirate.Description = request.Description;
+                    piratesRepository.Context.SaveChanges();
+                    return pirate;
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
 

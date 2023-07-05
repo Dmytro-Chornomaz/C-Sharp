@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeWork9", "HomeWork9\Home
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance Organizer", "Finance Organizer\Finance Organizer.csproj", "{2D762C13-E63B-44CC-8820-C2C892983AE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayGround", "PlayGround\PlayGround.csproj", "{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayGround", "PlayGround\PlayGround.csproj", "{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesignPatterns", "DesignPatterns\DesignPatterns.csproj", "{D15F47E6-BF57-4605-A44D-F7B13399A0FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

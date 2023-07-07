@@ -9,12 +9,6 @@ namespace Finance_Organizer.Controllers
     [ApiController]
     public class FinanceOrganizerController : ControllerBase
     {
-        //private readonly IUsers users;
-        //public FinanceOrganizerController(IUsers users)
-        //{
-        //    this.users = users;
-        //}
-
         private readonly IUsersRepository usersRepository;
         public FinanceOrganizerController(IUsersRepository usersRepository)
         {
@@ -26,14 +20,14 @@ namespace Finance_Organizer.Controllers
         {
             if (name != null)
             {
-                int id = users.ListOfUsers.Count() + 1;
+                int id = usersRepository.Context.Users.Count() + 1;
 
                 Person person = new Person
                 {
                     Id = id,
                     Name = name,
                 };
-                users.ListOfUsers.Add(person);
+                usersRepository.Context.Users.Add(person);
                 return person;
             }
             else
@@ -45,13 +39,13 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetAllPersons")]
         public ActionResult<List<Person>> GetAllPersons()
         {
-            return users.ListOfUsers;
+            return usersRepository.Context.Users.ToList();
         }
 
         [HttpGet("GetPerson")]
         public ActionResult<Person> GetPerson([FromQuery] string name)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
@@ -66,14 +60,14 @@ namespace Finance_Organizer.Controllers
         [HttpDelete("DeletePerson")]
         public ActionResult DeletePerson([FromQuery] string name, string confirmation)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    var personForDeleting = users.ListOfUsers.FirstOrDefault(x => x.Name == name);
-                    users.ListOfUsers.Remove(personForDeleting);
+                    var personForDeleting = usersRepository.Context.Users.FirstOrDefault(x => x.Name == name);
+                    usersRepository.Context.Users.Remove(personForDeleting);
                     return NoContent();
                 }
                 else
@@ -90,7 +84,7 @@ namespace Finance_Organizer.Controllers
         [HttpPost("AddTransactionFromBody")]
         public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
@@ -112,7 +106,7 @@ namespace Finance_Organizer.Controllers
             ([FromQuery] string name, string transactionName, double meal, double communalServices, double medicine, 
             double transport, double purchases, double leisure, double savings, string comment)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
             Transaction transaction = new Transaction();
 
             if (person != null)
@@ -144,7 +138,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetLastTransaction")]
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
             bool verification = person.Transactions.Count > 0;
 
             if (person != null && verification)
@@ -161,7 +155,7 @@ namespace Finance_Organizer.Controllers
         [HttpDelete("DeleteLastTransaction")]
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
             bool verification = person.Transactions.Count > 0;
 
             if (person != null && verification)
@@ -187,7 +181,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetAllTransactionsByPerson")]
         public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
@@ -202,7 +196,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForThisMonth")]
         public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
@@ -228,7 +222,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForThisYear")]
         public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
@@ -254,7 +248,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificMonth")]
         public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkMonth = 12 >= month && month > 0;
@@ -293,7 +287,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificYear")]
         public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkYear = today.Year >= year && year > 2021;
@@ -330,7 +324,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForLastWeek")]
         public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             if (person != null)
             {
@@ -358,7 +352,7 @@ namespace Finance_Organizer.Controllers
         public ActionResult<Categories> GetExpensesForSpecificPeriod
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, int dayEnd, int monthEnd, int yearEnd)
         {
-            Person person = users.GetPersonByName(name);
+            Person person = usersRepository.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
 

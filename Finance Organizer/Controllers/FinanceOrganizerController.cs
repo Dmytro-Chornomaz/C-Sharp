@@ -9,10 +9,16 @@ namespace Finance_Organizer.Controllers
     [ApiController]
     public class FinanceOrganizerController : ControllerBase
     {
-        private readonly IUsers users;
-        public FinanceOrganizerController(IUsers users)
+        //private readonly IUsers users;
+        //public FinanceOrganizerController(IUsers users)
+        //{
+        //    this.users = users;
+        //}
+
+        private readonly IUsersRepository usersRepository;
+        public FinanceOrganizerController(IUsersRepository usersRepository)
         {
-            this.users = users;
+            this.usersRepository = usersRepository;
         }
 
         [HttpPost("CreatePerson")]
@@ -89,9 +95,9 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                //transaction.Categories.PersonId = transaction.PersonId;
+                transaction.Categories.PersonId = transaction.PersonId;
                 transaction.Id = person.Transactions.Count + 1;
-                //transaction.Categories.Id = transaction.Id;
+                transaction.Categories.Id = transaction.Id;
                 person.Transactions.Add(transaction);
                 return transaction;
             }
@@ -112,9 +118,9 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                //transaction.Categories.PersonId = transaction.PersonId;
+                transaction.Categories.PersonId = transaction.PersonId;
                 transaction.Id = person.Transactions.Count + 1;
-                //transaction.Categories.Id = transaction.Id;
+                transaction.Categories.Id = transaction.Id;
                 transaction.Name = transactionName;
                 transaction.Comment = comment;
 

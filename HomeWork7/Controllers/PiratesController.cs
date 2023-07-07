@@ -9,13 +9,6 @@ namespace HomeWork7.Controllers
     [ApiController]
     public class PiratesController : ControllerBase
     {
-        //private readonly ICrew crew;
-
-        //public PiratesController(ICrew crew)
-        //{
-        //    this.crew = crew;
-        //}
-
         private readonly IPiratesRepository piratesRepository;
 
         public PiratesController(IPiratesRepository piratesRepository)

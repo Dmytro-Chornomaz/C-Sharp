@@ -1,10 +1,13 @@
-﻿namespace Finance_Organizer
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Finance_Organizer
 {
     public class Categories
     {
-        //public int PersonId { get; set; }
-        //public int Id { get; set; }
-
+        [Key]
+        public int Id { get; set; }
+        public int PersonId { get; set; }
+        
         private double meal = 0;
         private double communalServices = 0;
         private double medicine = 0;

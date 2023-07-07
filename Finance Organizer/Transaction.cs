@@ -1,9 +1,12 @@
-﻿namespace Finance_Organizer
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Finance_Organizer
 {
     public class Transaction
 	{
-		public int PersonId { get; set; }
-		public int Id { get; set; }
+		[Key]
+        public int Id { get; set; }
+        public int PersonId { get; set; }		
 		public string Name { get; set; } = "No name";
 		public DateTime Time { get; set; } = DateTime.Now;
 		public Categories Categories { get; set; } = new Categories();

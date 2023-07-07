@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static HomeWork7.Controllers.PiratesController;
+
 
 namespace HomeWork7.Controllers
 {

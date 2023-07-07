@@ -1,9 +1,5 @@
 ﻿using Finance_Organizer;
-using System;
-using System.Security.Cryptography.Xml;
 using System.Text.Json;
-using System.Transactions;
-using System.Xml.Linq;
 using Transaction = Finance_Organizer.Transaction;
 
 var options = new JsonSerializerOptions
@@ -209,23 +205,15 @@ Person dimon = new Person()
 {
     Id = 1,
     Name = "Dimon",
-
-
-
     Transactions = new() { transactionD1, transactionD2, transactionD3,
             transactionD4, transactionD5, transactionD6 }
-
 };
 Person adolf = new Person()
 {
     Id = 2,
     Name = "Adolf",
-
-
-
     Transactions = new() { transactionA1, transactionA2, transactionA3,
             transactionA4, transactionA5, transactionA6 }
-
 };
 
 List<Person> people = new List<Person>() { };

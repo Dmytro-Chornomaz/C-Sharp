@@ -1,4 +1,5 @@
 using HomeWork7;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +16,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //builder.Services.AddSingleton<ICrew, Crew>();
-builder.Services.AddSingleton<IPiratesRepository, PiratesRepository>();
+builder.Services.AddScoped<IPiratesRepository, PiratesRepository>();
+
+builder.Services.AddDbContext<ApplicationContext>(
+        options => options.UseSqlite("name=ConnectionStrings:DefaultConnection"));
 
 var app = builder.Build();
 

@@ -12,7 +12,7 @@ namespace Finance_Organizer
 
         public DbSet<Person> Users => Set<Person>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
-        public DbSet<Categories> TheCategories => Set<Categories>();
+        public DbSet<Categories> Categories => Set<Categories>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

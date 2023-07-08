@@ -25,8 +25,7 @@ namespace Finance_Organizer.Controllers
 
                 Person person = new Person
                 {
-                    //Id = id,
-                    Name = name,
+                    Name = name
                 };
                 usersRepository.Context.Users.Add(person);
                 usersRepository.Context.SaveChanges();
@@ -93,8 +92,7 @@ namespace Finance_Organizer.Controllers
             {
                 transaction.PersonId = person.Id;
                 transaction.Categories.PersonId = transaction.PersonId;
-                //transaction.Id = person.Transactions.Count + 1;
-                //transaction.Categories.Id = transaction.Id;
+
                 person.Transactions.Add(transaction);
                 usersRepository.Context.SaveChanges();
                 return transaction;
@@ -117,8 +115,7 @@ namespace Finance_Organizer.Controllers
             {
                 transaction.PersonId = person.Id;
                 transaction.Categories.PersonId = transaction.PersonId;
-                //transaction.Id = person.Transactions.Count + 1;
-                //transaction.Categories.Id = transaction.Id;
+
                 transaction.Categories.Meal = meal;
                 transaction.Categories.CommunalServices = communalServices;
                 transaction.Categories.Medicine = medicine;
@@ -141,13 +138,10 @@ namespace Finance_Organizer.Controllers
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
             Person person = usersRepository.GetPersonByName(name);
-            bool verification = person.Transactions.Count > 0;
 
-            if (person != null && verification)
+            if (person != null)
             {
-                //var lastTransaction = person.Transactions.Last();
-                var lastTransaction = usersRepository.Context.Transactions
-                    .Include(x => x.Categories).Where(x => x.PersonId == person.Id).Last();
+                var lastTransaction = person.Transactions.LastOrDefault();
                 return lastTransaction;
             }
             else
@@ -160,15 +154,19 @@ namespace Finance_Organizer.Controllers
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
             Person person = usersRepository.GetPersonByName(name);
-            bool verification = person.Transactions.Count > 0;
 
-            if (person != null && verification)
+            if (person != null)
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    var lastTransaction = person.Transactions.Last();
+                    var lastTransaction = person.Transactions.LastOrDefault();
 
                     person.Transactions.Remove(lastTransaction);
+
+                    var categoriesFromLastTransaction = lastTransaction.Categories;
+                                               
+                    usersRepository.Context.Categories.Remove(categoriesFromLastTransaction);
+
                     usersRepository.Context.SaveChanges();
                     return NoContent();
                 }

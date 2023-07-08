@@ -1,4 +1,6 @@
-﻿namespace Finance_Organizer
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Finance_Organizer
 {
     public class UsersRepository : IUsersRepository
     {
@@ -11,7 +13,8 @@
 
         public Person GetPersonByName(string name)
         {
-            Person person = Context.Users.FirstOrDefault(x => x.Name == name);
+            Person person = Context.Users
+                .Include(x => x.Transactions).ThenInclude(y => y.Categories).FirstOrDefault(x => x.Name == name)!;
             return person;
         }
     }

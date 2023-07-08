@@ -146,7 +146,8 @@ namespace Finance_Organizer.Controllers
             if (person != null && verification)
             {
                 //var lastTransaction = person.Transactions.Last();
-                var lastTransaction = usersRepository.Context.Transactions.Include(x => x.Categories).Last();
+                var lastTransaction = usersRepository.Context.Transactions
+                    .Include(x => x.Categories).Where(x => x.PersonId == person.Id).Last();
                 return lastTransaction;
             }
             else

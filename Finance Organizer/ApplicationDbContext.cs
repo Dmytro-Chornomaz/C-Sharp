@@ -7,12 +7,12 @@ namespace Finance_Organizer
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         public DbSet<Person> Users => Set<Person>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
-        public DbSet<Categories> Categories => Set<Categories>();
+        public DbSet<Categories> TheCategories => Set<Categories>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

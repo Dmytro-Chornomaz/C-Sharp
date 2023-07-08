@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using System;
 using System.Transactions;
@@ -24,10 +25,11 @@ namespace Finance_Organizer.Controllers
 
                 Person person = new Person
                 {
-                    Id = id,
+                    //Id = id,
                     Name = name,
                 };
                 usersRepository.Context.Users.Add(person);
+                usersRepository.Context.SaveChanges();
                 return person;
             }
             else
@@ -68,6 +70,7 @@ namespace Finance_Organizer.Controllers
                 {
                     var personForDeleting = usersRepository.Context.Users.FirstOrDefault(x => x.Name == name);
                     usersRepository.Context.Users.Remove(personForDeleting);
+                    usersRepository.Context.SaveChanges();
                     return NoContent();
                 }
                 else
@@ -90,9 +93,10 @@ namespace Finance_Organizer.Controllers
             {
                 transaction.PersonId = person.Id;
                 transaction.Categories.PersonId = transaction.PersonId;
-                transaction.Id = person.Transactions.Count + 1;
-                transaction.Categories.Id = transaction.Id;
+                //transaction.Id = person.Transactions.Count + 1;
+                //transaction.Categories.Id = transaction.Id;
                 person.Transactions.Add(transaction);
+                usersRepository.Context.SaveChanges();
                 return transaction;
             }
             else
@@ -103,8 +107,8 @@ namespace Finance_Organizer.Controllers
 
         [HttpPost("AddTransaction")]
         public ActionResult<Transaction> AddTransaction
-            ([FromQuery] string name, string transactionName, double meal, double communalServices, double medicine, 
-            double transport, double purchases, double leisure, double savings, string comment)
+            ([FromQuery] string name, double meal, double communalServices, double medicine,
+            double transport, double purchases, double leisure, double savings)
         {
             Person person = usersRepository.GetPersonByName(name);
             Transaction transaction = new Transaction();
@@ -113,11 +117,8 @@ namespace Finance_Organizer.Controllers
             {
                 transaction.PersonId = person.Id;
                 transaction.Categories.PersonId = transaction.PersonId;
-                transaction.Id = person.Transactions.Count + 1;
-                transaction.Categories.Id = transaction.Id;
-                transaction.Name = transactionName;
-                transaction.Comment = comment;
-
+                //transaction.Id = person.Transactions.Count + 1;
+                //transaction.Categories.Id = transaction.Id;
                 transaction.Categories.Meal = meal;
                 transaction.Categories.CommunalServices = communalServices;
                 transaction.Categories.Medicine = medicine;
@@ -127,6 +128,7 @@ namespace Finance_Organizer.Controllers
                 transaction.Categories.Savings = savings;
 
                 person.Transactions.Add(transaction);
+                usersRepository.Context.SaveChanges();
                 return transaction;
             }
             else
@@ -143,7 +145,8 @@ namespace Finance_Organizer.Controllers
 
             if (person != null && verification)
             {
-                var lastTransaction = person.Transactions.Last();
+                //var lastTransaction = person.Transactions.Last();
+                var lastTransaction = usersRepository.Context.Transactions.Include(x => x.Categories).Last();
                 return lastTransaction;
             }
             else
@@ -163,7 +166,9 @@ namespace Finance_Organizer.Controllers
                 if (confirmation.ToLower() == "yes")
                 {
                     var lastTransaction = person.Transactions.Last();
+
                     person.Transactions.Remove(lastTransaction);
+                    usersRepository.Context.SaveChanges();
                     return NoContent();
                 }
                 else

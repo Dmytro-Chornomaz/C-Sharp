@@ -69,6 +69,22 @@ namespace Finance_Organizer.Controllers
                 {
                     var personForDeleting = usersRepository.Context.Users.FirstOrDefault(x => x.Name == name);
                     usersRepository.Context.Users.Remove(personForDeleting);
+
+                    var transactionsForDeleting = personForDeleting.Transactions.ToList();
+
+                    foreach (var transaction in transactionsForDeleting)
+                    {
+                        usersRepository.Context.Transactions.Remove(transaction);
+                    }
+
+                    var categoriesForDeleting = usersRepository.Context.Categories
+                                                   .Where(x => x.PersonId == personForDeleting.Id).ToList();
+
+                    foreach (var cat in categoriesForDeleting)
+                    {
+                        usersRepository.Context.Categories.Remove(cat);
+                    }
+
                     usersRepository.Context.SaveChanges();
                     return NoContent();
                 }
@@ -164,10 +180,11 @@ namespace Finance_Organizer.Controllers
                     person.Transactions.Remove(lastTransaction);
 
                     var categoriesFromLastTransaction = lastTransaction.Categories;
-                                               
+
                     usersRepository.Context.Categories.Remove(categoriesFromLastTransaction);
 
                     usersRepository.Context.SaveChanges();
+
                     return NoContent();
                 }
                 else

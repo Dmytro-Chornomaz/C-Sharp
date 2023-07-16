@@ -19,11 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeWork9", "HomeWork9\Home
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance Organizer", "Finance Organizer\Finance Organizer.csproj", "{2D762C13-E63B-44CC-8820-C2C892983AE5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayGround_FinOrganizer", "PlayGround\PlayGround_FinOrganizer.csproj", "{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayGround", "PlayGround\PlayGround.csproj", "{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatterns", "DesignPatterns\DesignPatterns.csproj", "{D15F47E6-BF57-4605-A44D-F7B13399A0FA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayGround_EntityFramework", "EntityFramework_PlayGround\PlayGround_EntityFramework.csproj", "{8308C998-2130-43DA-9C06-6C5A436AA900}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,10 +65,6 @@ Global
 		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D15F47E6-BF57-4605-A44D-F7B13399A0FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8308C998-2130-43DA-9C06-6C5A436AA900}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8308C998-2130-43DA-9C06-6C5A436AA900}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8308C998-2130-43DA-9C06-6C5A436AA900}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8308C998-2130-43DA-9C06-6C5A436AA900}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

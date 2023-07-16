@@ -111,7 +111,7 @@ namespace DesignPatterns
             }
         }
 
-        class Program
+        class Program_FactoryMethod
         {
             static void Main(string[] args)
             {

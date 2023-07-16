@@ -85,7 +85,7 @@ namespace HomeWork7.Controllers
                 if (pirate == null) return NotFound();
                 piratesRepository.Context.PiratesDB.Remove(pirate);
                 piratesRepository.Context.SaveChanges();
-                return Ok();
+                return NoContent();
             }
         }
 

@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeWork7", "HomeWork7\Home
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeWork9", "HomeWork9\HomeWork9.csproj", "{CC4BE2AC-3CA1-4335-BF1C-9EE4BEFFD891}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance Organizer", "Finance Organizer\Finance Organizer.csproj", "{2D762C13-E63B-44CC-8820-C2C892983AE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance_Organizer", "Finance Organizer\Finance_Organizer.csproj", "{2D762C13-E63B-44CC-8820-C2C892983AE5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayGround", "PlayGround\PlayGround.csproj", "{D5D9FB6D-FC61-440F-96FB-81462FF07FCA}"
 EndProject

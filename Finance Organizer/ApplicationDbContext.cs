@@ -22,9 +22,11 @@ namespace Finance_Organizer
             modelBuilder.Entity<Categories>().HasKey(p => p.Id);
         }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer(@"Server=DESKTOP-5T0EOPC\\SQLEXPRESS;Database=Finance_Organizer;Trusted_Connection=True;");
-        //}
+        public Person GetPersonByName(string name)
+        {
+            Person person = Users
+                .Include(x => x.Transactions).ThenInclude(y => y.Categories).FirstOrDefault(x => x.Name == name)!;
+            return person;
+        }
     }
 }

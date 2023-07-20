@@ -1,13 +1,8 @@
 ﻿
+string smth = """
+    1. Beer
+    2. Rome
+    3. Wine
+    """;
 
-string dirName = @"D:\Завантаження";
-
-if (Directory.Exists(dirName))
-{
-    string[] dirs = Directory.GetDirectories(dirName);
-
-	foreach (var dir in dirs)
-	{
-		Console.WriteLine(dir);
-	}
-}
+Console.WriteLine(smth);

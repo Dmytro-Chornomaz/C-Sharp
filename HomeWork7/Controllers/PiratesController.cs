@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace HomeWork7.Controllers
 {
@@ -9,85 +6,111 @@ namespace HomeWork7.Controllers
     [ApiController]
     public class PiratesController : ControllerBase
     {
-        private readonly IPiratesRepository piratesRepository;
-        private readonly ILogger<PiratesController> logger;
+        private readonly ApplicationContext Context;
+        private readonly ILogger<PiratesController> Logger;
 
-        public PiratesController(IPiratesRepository piratesRepository, ILogger<PiratesController> logger)
+        public PiratesController(ApplicationContext context, ILogger<PiratesController> logger)
         {
-            this.piratesRepository = piratesRepository;
-            this.logger = logger;
+            Context = context;
+            Logger = logger;
         }
 
         [HttpGet]
         public ActionResult<List<Pirate>> GetCrew()
         {
-            using (piratesRepository.Context)
+            if (Context.PiratesDB.Count() > 0)
             {
-                return piratesRepository.Context.PiratesDB.ToList();
+                Logger.LogInformation("Getting all crew.");
+                return Context.PiratesDB.ToList();
             }
+            else
+            {
+                Logger.LogWarning("The crew is empty.");
+                return NotFound();
+            }
+            
         }
 
         [HttpGet("byId/{id}")]
         public ActionResult<Pirate?> GetPirate([FromRoute] int id)
         {
-            using (piratesRepository.Context)
+            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+
+            if (pirate != null)
             {
-                if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
-                {
-                    return piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
-                }
-                else
-                {
-                    return NotFound();
-                }
+                Logger.LogInformation($"Getting pirate by id {id}.");
+                return pirate;
             }
+            else
+            {
+                Logger.LogWarning($"No pirate with id {id}");
+                return NotFound();
+            }
+
         }
 
         [HttpGet("byName/{name}")]
         public ActionResult<Pirate?> GetPirateByName([FromRoute] string name)
         {
-            using (piratesRepository.Context)
-            {
-                if (piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Name == name) != null)
-                {
+            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Name == name);
 
-                    return piratesRepository.GetByName(name);
-                }
-                else
-                {
-                    return NotFound();
-                }
+            if (pirate != null)
+            {
+                Logger.LogInformation($"Getting pirate by name {name}.");
+                return pirate;
             }
+            else
+            {
+                Logger.LogWarning($"No pirate with name {name}");
+                return NotFound();
+            }
+
         }
 
         [HttpPost]
         public ActionResult<Pirate> AddPirate([FromBody] CreatePirateRequest request)
         {
-            using (piratesRepository.Context)
+            if (Context.PiratesDB.FirstOrDefault(x => x.Name == request.Name) == null)
             {
+                Logger.LogInformation($"Creating pirate with name {request.Name}");
                 var pirate = new Pirate
                 {
-                    Id = piratesRepository.Context.PiratesDB.ToList().Count + 1,
+                    Id = Context.PiratesDB.Max(x => x.Id) + 1,
                     Name = request.Name,
                     Description = request.Description,
                     Age = request.Age
                 };
-                piratesRepository.Context.PiratesDB.Add(pirate);
-                piratesRepository.Context.SaveChanges();
+                Context.PiratesDB.Add(pirate);
+                Context.SaveChanges();
+                Logger.LogInformation($"Created pirate with id {pirate.Id} and name {request.Name}");
                 return pirate;
             }
+            else
+            {
+                Logger.LogWarning($"A pirate with the name {request.Name} already exists.");
+                return BadRequest();
+            }
+            
+
         }
 
         [HttpDelete("{id}")]
         public ActionResult DeletePirate([FromRoute] int id)
         {
-            using (piratesRepository.Context)
+            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+
+            if (pirate != null)
             {
-                var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
-                if (pirate == null) return NotFound();
-                piratesRepository.Context.PiratesDB.Remove(pirate);
-                piratesRepository.Context.SaveChanges();
+                Logger.LogInformation($"Deleting pirate with id {id}");                
+                Context.PiratesDB.Remove(pirate);
+                Context.SaveChanges();
+                Logger.LogInformation($"Deleted pirate with id {id}");
                 return NoContent();
+            }
+            else
+            {
+                Logger.LogWarning($"No pirate with id {id}");
+                return NotFound();
             }
         }
 
@@ -95,23 +118,24 @@ namespace HomeWork7.Controllers
         [HttpPut("{id}")]
         public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
         {
-            using (piratesRepository.Context)
+            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+
+            if (pirate != null)
             {
-                if (id <= piratesRepository.Context.PiratesDB.ToList().Count)
-                {
-                    var pirate = piratesRepository.Context.PiratesDB.FirstOrDefault(x => x.Id == id);
-                    pirate.Id = id;
-                    pirate.Name = request.Name;
-                    pirate.Age = request.Age;
-                    pirate.Description = request.Description;
-                    piratesRepository.Context.SaveChanges();
-                    return pirate;
-                }
-                else
-                {
-                    return NotFound();
-                }
+                Logger.LogInformation($"Changing pirate with id {id}");                                
+                pirate.Name = request.Name;
+                pirate.Age = request.Age;
+                pirate.Description = request.Description;
+                Context.SaveChanges();
+                Logger.LogInformation($"Changed pirate with id {id}");
+                return pirate;
             }
+            else
+            {
+                Logger.LogWarning($"No pirate with id {id}");
+                return NotFound();
+            }
+
         }
 
         public class Pirate

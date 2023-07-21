@@ -1,15 +1,13 @@
 using HomeWork7;
+using HomeWork7.Controllers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-ILogger logger = loggerFactory.CreateLogger<PirateFilter>();
-
-builder.Services.AddControllers(x =>
-{
-    x.Filters.Add(typeof(PirateFilter));
-});
+//builder.Services.AddControllers(x =>
+//{
+//    x.Filters.Add(typeof(PirateFilter));
+//});
 
 // Add services to the container.
 
@@ -18,8 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddSingleton<ICrew, Crew>();
-builder.Services.AddScoped<IPiratesRepository, PiratesRepository>();
+builder.Services.AddScoped<ApplicationContext>();
 
 builder.Services.AddDbContext<ApplicationContext>(
         options => options.UseSqlite("name=ConnectionStrings:DefaultConnection"));

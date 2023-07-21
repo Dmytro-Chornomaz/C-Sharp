@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+ILogger logger = loggerFactory.CreateLogger<PirateFilter>();
+
 builder.Services.AddControllers(x =>
 {
     x.Filters.Add(typeof(PirateFilter));

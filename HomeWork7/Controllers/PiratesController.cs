@@ -10,10 +10,12 @@ namespace HomeWork7.Controllers
     public class PiratesController : ControllerBase
     {
         private readonly IPiratesRepository piratesRepository;
+        private readonly ILogger<PiratesController> logger;
 
-        public PiratesController(IPiratesRepository piratesRepository)
+        public PiratesController(IPiratesRepository piratesRepository, ILogger<PiratesController> logger)
         {
             this.piratesRepository = piratesRepository;
+            this.logger = logger;
         }
 
         [HttpGet]

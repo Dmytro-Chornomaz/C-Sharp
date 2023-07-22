@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using System;
-using System.Transactions;
 
 namespace Finance_Organizer.Controllers
 {
@@ -11,9 +8,11 @@ namespace Finance_Organizer.Controllers
     public class FinanceOrganizerController : ControllerBase
     {
         private readonly ApplicationDbContext Context;
-        public FinanceOrganizerController(ApplicationDbContext context)
+        private readonly ILogger<FinanceOrganizerController> Logger;
+        public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger)
         {
             Context = context;
+            Logger = logger;
         }
 
         [HttpPost("CreatePerson")]
@@ -21,18 +20,39 @@ namespace Finance_Organizer.Controllers
         {
             if (name != null)
             {
-                int id = Context.Users.Count() + 1;
-
-                Person person = new Person
+                if (Context.Users.Any(x => x.Name == name))
                 {
-                    Name = name
-                };
-                Context.Users.Add(person);
-                Context.SaveChanges();
-                return person;
+                    Logger.LogWarning($"*** This name user exists. ***");
+                    return BadRequest();
+                }
+                else
+                {
+                    int id;
+
+                    if (Context.Users.Count() == 0)
+                    {
+                        id = 1;
+                    }
+                    else
+                    {
+                        id = Context.Users.Max(x => x.Id) + 1;
+                    }
+
+                    Person person = new Person
+                    {
+                        Id = id,
+                        Name = name
+                    };
+                    Context.Users.Add(person);
+                    Context.SaveChanges();
+                    Logger.LogInformation($"*** Creation of a user with the name {name} ***");
+                    return person;
+                }
+
             }
             else
             {
+                Logger.LogWarning($"*** Did not enter a user name. ***");
                 return BadRequest();
             }
         }
@@ -40,20 +60,32 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetAllPersons")]
         public ActionResult<List<Person>> GetAllPersons()
         {
-            return Context.Users.ToList();
+            if (Context.Users.Count() > 0)
+            {
+                Logger.LogInformation($"*** Creation of users list. ***");
+                return Context.Users.ToList();
+            }
+            else
+            {
+                Logger.LogWarning($"*** No users in a list. ***");
+                return NotFound();
+            }
+
         }
 
         [HttpGet("GetPerson")]
-        public ActionResult<Person> GetPerson([FromQuery] string name)
+        public ActionResult<Person?> GetPerson([FromQuery] string name)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
+                Logger.LogInformation($"*** Getting a user by the name of {name}. ***");
                 return person;
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -61,16 +93,15 @@ namespace Finance_Organizer.Controllers
         [HttpDelete("DeletePerson")]
         public ActionResult DeletePerson([FromQuery] string name, string confirmation)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    var personForDeleting = Context.Users.FirstOrDefault(x => x.Name == name);
-                    Context.Users.Remove(personForDeleting);
+                    Context.Users.Remove(person);
 
-                    var transactionsForDeleting = personForDeleting.Transactions.ToList();
+                    var transactionsForDeleting = person.Transactions.ToList();
 
                     foreach (var transaction in transactionsForDeleting)
                     {
@@ -78,7 +109,7 @@ namespace Finance_Organizer.Controllers
                     }
 
                     var categoriesForDeleting = Context.Categories
-                                                   .Where(x => x.PersonId == personForDeleting.Id).ToList();
+                                                   .Where(x => x.PersonId == person.Id).ToList();
 
                     foreach (var cat in categoriesForDeleting)
                     {
@@ -86,15 +117,18 @@ namespace Finance_Organizer.Controllers
                     }
 
                     Context.SaveChanges();
+                    Logger.LogInformation($"*** Deleting a user by the name of {name}. ***");
                     return NoContent();
                 }
                 else
                 {
+                    Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
                     return Ok();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -102,7 +136,7 @@ namespace Finance_Organizer.Controllers
         [HttpPost("AddTransactionFromBody")]
         public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
@@ -111,10 +145,12 @@ namespace Finance_Organizer.Controllers
 
                 person.Transactions.Add(transaction);
                 Context.SaveChanges();
+                Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
                 return transaction;
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -124,7 +160,7 @@ namespace Finance_Organizer.Controllers
             ([FromQuery] string name, double meal, double communalServices, double medicine,
             double transport, double purchases, double leisure, double savings)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
             Transaction transaction = new Transaction();
 
             if (person != null)
@@ -142,10 +178,12 @@ namespace Finance_Organizer.Controllers
 
                 person.Transactions.Add(transaction);
                 Context.SaveChanges();
+                Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
                 return transaction;
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -153,15 +191,25 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetLastTransaction")]
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
-                var lastTransaction = person.Transactions.LastOrDefault();
-                return lastTransaction;
+                if (person.Transactions.Count() > 0)
+                {
+                    var lastTransaction = person.Transactions.LastOrDefault();
+                    Logger.LogInformation($"*** Getting a last transaction for a user by the name of {name}. ***");
+                    return lastTransaction!;
+                }
+                else
+                {
+                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    return NotFound();
+                }
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -169,32 +217,38 @@ namespace Finance_Organizer.Controllers
         [HttpDelete("DeleteLastTransaction")]
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    var lastTransaction = person.Transactions.LastOrDefault();
-
-                    person.Transactions.Remove(lastTransaction);
-
-                    var categoriesFromLastTransaction = lastTransaction.Categories;
-
-                    Context.Categories.Remove(categoriesFromLastTransaction);
-
-                    Context.SaveChanges();
-
-                    return NoContent();
+                    if (person.Transactions.Count() > 0)
+                    {
+                        var lastTransaction = person.Transactions.LastOrDefault();
+                        person.Transactions.Remove(lastTransaction!);
+                        var categoriesFromLastTransaction = lastTransaction!.Categories;
+                        Context.Categories.Remove(categoriesFromLastTransaction);
+                        Context.SaveChanges();
+                        Logger.LogInformation($"*** Deleting a last transaction for a user by the name of {name}. ***");
+                        return NoContent();
+                    }
+                    else
+                    {
+                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                        return NotFound();
+                    }
                 }
                 else
                 {
+                    Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
                     return Ok();
                 }
 
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -202,14 +256,25 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetAllTransactionsByPerson")]
         public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
-                return person.Transactions;
+                if (person.Transactions.Count() > 0)
+                {
+                    Logger.LogInformation($"*** Getting all transactions for a user by the name of {name}. ***");
+                    return person.Transactions;
+                }
+                else
+                {
+                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    return NotFound();
+                }
+
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -217,25 +282,28 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForThisMonth")]
         public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
-                DateTime dateTime = DateTime.Now;
-                var transactions = person.Transactions.Where(x => x.Time.Month == dateTime.Month);
-                var categories = transactions.Select(x => x.Categories);
-                if (categories != null)
+                if (person.Transactions.Count() > 0)
                 {
+                    DateTime dateTime = DateTime.Now;
+                    var transactions = person.Transactions.Where(x => x.Time.Month == dateTime.Month);
+                    var categories = transactions.Select(x => x.Categories);
                     var result = Categories.CategoriesSum(categories);
+                    Logger.LogInformation($"*** Getting expenses for this month for a user by the name of {name}. ***");
                     return result;
                 }
                 else
                 {
+                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -243,25 +311,28 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForThisYear")]
         public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
-                DateTime dateTime = DateTime.Now;
-                var transactions = person.Transactions.Where(x => x.Time.Year == dateTime.Year);
-                var categories = transactions.Select(x => x.Categories);
-                if (categories != null)
+                if (person.Transactions.Count() > 0)
                 {
+                    DateTime dateTime = DateTime.Now;
+                    var transactions = person.Transactions.Where(x => x.Time.Year == dateTime.Year);
+                    var categories = transactions.Select(x => x.Categories);
                     var result = Categories.CategoriesSum(categories);
+                    Logger.LogInformation($"*** Getting expenses for this year for a user by the name of {name}. ***");
                     return result;
                 }
                 else
                 {
+                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -269,7 +340,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificMonth")]
         public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkMonth = 12 >= month && month > 0;
@@ -279,28 +350,32 @@ namespace Finance_Organizer.Controllers
             {
                 if (person != null)
                 {
-                    DateTime dateTime = new DateTime(year, month, 1);
-                    var transactions = person.Transactions
-                        .Where(x => x.Time.Month == dateTime.Month && x.Time.Year == dateTime.Year);
-                    var categories = transactions.Select(x => x.Categories);
-
-                    if (categories != null)
+                    if (person.Transactions.Count() > 0)
                     {
+                        DateTime dateTime = new DateTime(year, month, 1);
+                        var transactions = person.Transactions
+                            .Where(x => x.Time.Month == dateTime.Month && x.Time.Year == dateTime.Year);
+                        var categories = transactions.Select(x => x.Categories);
                         var result = Categories.CategoriesSum(categories);
+                        Logger.LogInformation($"*** Getting expenses for {month}/{year} date for a user by the name of {name}. ***");
                         return result;
+
                     }
                     else
                     {
+                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
+                    Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                     return NotFound();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** Wrong date. ***");
                 return BadRequest();
             }
         }
@@ -308,7 +383,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificYear")]
         public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkYear = today.Year >= year && year > 2021;
@@ -316,28 +391,32 @@ namespace Finance_Organizer.Controllers
             {
                 if (person != null)
                 {
-                    DateTime dateTime = new DateTime(year, 1, 1);
-                    var transactions = person.Transactions
-                        .Where(x => x.Time.Year == dateTime.Year);
-                    var categories = transactions.Select(x => x.Categories);
-
-                    if (categories != null)
+                    if (person.Transactions.Count() > 0)
                     {
+                        DateTime dateTime = new DateTime(year, 1, 1);
+                        var transactions = person.Transactions
+                            .Where(x => x.Time.Year == dateTime.Year);
+                        var categories = transactions.Select(x => x.Categories);
                         var result = Categories.CategoriesSum(categories);
+                        Logger.LogInformation($"*** Getting expenses for {year} year for a user by the name of {name}. ***");
+
                         return result;
                     }
                     else
                     {
+                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
+                    Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                     return NotFound();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** Wrong date. ***");
                 return BadRequest();
             }
         }
@@ -345,26 +424,29 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForLastWeek")]
         public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             if (person != null)
             {
-                DateTime dateTime = DateTime.Now;
-                DateTime weekAgo = dateTime.AddDays(-7);
-                var transactions = person.Transactions.Where(x => x.Time >= weekAgo);
-                var categories = transactions.Select(x => x.Categories);
-                if (categories != null)
+                if (person.Transactions.Count() > 0)
                 {
+                    DateTime dateTime = DateTime.Now;
+                    DateTime weekAgo = dateTime.AddDays(-7);
+                    var transactions = person.Transactions.Where(x => x.Time >= weekAgo);
+                    var categories = transactions.Select(x => x.Categories);
                     var result = Categories.CategoriesSum(categories);
+                    Logger.LogInformation($"*** Getting expenses for last week for a user by the name of {name}. ***");
                     return result;
                 }
                 else
                 {
+                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -373,7 +455,7 @@ namespace Finance_Organizer.Controllers
         public ActionResult<Categories> GetExpensesForSpecificPeriod
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, int dayEnd, int monthEnd, int yearEnd)
         {
-            Person person = Context.GetPersonByName(name);
+            Person? person = Context.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
 
@@ -393,30 +475,33 @@ namespace Finance_Organizer.Controllers
             {
                 if (person != null)
                 {
-                    DateTime dateStart = new DateTime(yearStart, monthStart, dayStart);
-                    DateTime dateEnd = new DateTime(yearEnd, monthEnd, dayEnd);
-
-                    var transactions = person.Transactions
-                        .Where(x => x.Time >= dateStart && x.Time <= dateEnd);
-                    var categories = transactions.Select(x => x.Categories);
-
-                    if (categories != null)
+                    if (person.Transactions.Count() > 0)
                     {
+                        DateTime dateStart = new DateTime(yearStart, monthStart, dayStart);
+                        DateTime dateEnd = new DateTime(yearEnd, monthEnd, dayEnd);
+
+                        var transactions = person.Transactions
+                            .Where(x => x.Time >= dateStart && x.Time <= dateEnd);
+                        var categories = transactions.Select(x => x.Categories);
                         var result = Categories.CategoriesSum(categories);
+                        Logger.LogInformation($"*** Getting expenses for specific period for a user by the name of {name}. ***");
                         return result;
                     }
                     else
                     {
+                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
+                    Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                     return NotFound();
                 }
             }
             else
             {
+                Logger.LogWarning($"*** Wrong date. ***");
                 return BadRequest();
             }
         }

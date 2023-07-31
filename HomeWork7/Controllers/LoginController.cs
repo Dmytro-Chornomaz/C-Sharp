@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,28 +19,25 @@ namespace HomeWork7.Controllers
             MySecret = configuration.GetValue<string>("Auth:Secret");
             MyIssuer = configuration.GetValue<string>("Auth:Issuer");
             MyAudience = configuration.GetValue<string>("Auth:Audience");
-
         }
 
         [HttpPost]
         public string GenerateToken([FromBody] LoginModel request)
         {            
-
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(MySecret));
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, request.Login),
+                    //new Claim(ClaimTypes.Role, "User")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 Issuer = MyIssuer,
                 Audience = MyAudience,
                 SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)
             };
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
@@ -50,7 +46,6 @@ namespace HomeWork7.Controllers
         public bool VerifyToken(string token)
         {
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(MySecret));
-
             var tokenHandler = new JwtSecurityTokenHandler();
             try
             {

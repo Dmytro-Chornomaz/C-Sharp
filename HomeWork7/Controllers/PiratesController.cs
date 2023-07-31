@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HomeWork7.Controllers
 {
@@ -95,6 +96,7 @@ namespace HomeWork7.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public ActionResult DeletePirate([FromRoute] int id)
         {
             Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
@@ -116,6 +118,7 @@ namespace HomeWork7.Controllers
 
         //[PirateFilter]
         [HttpPut("{id}")]
+        [Authorize]
         public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
         {
             Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);

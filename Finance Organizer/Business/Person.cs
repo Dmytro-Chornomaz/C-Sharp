@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Finance_Organizer
+namespace Finance_Organizer.Business
 {
     public class Person
     {

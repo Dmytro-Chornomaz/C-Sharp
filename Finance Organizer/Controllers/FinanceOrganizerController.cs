@@ -1,3 +1,6 @@
+using Finance_Organizer.Business;
+using Finance_Organizer.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -16,6 +19,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpPost("CreatePerson")]
+        [Authorize]
         public ActionResult<Person> CreatePerson([FromQuery] string name)
         {
             if (name != null)
@@ -58,6 +62,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetAllPersons")]
+        [Authorize]
         public ActionResult<List<Person>> GetAllPersons()
         {
             if (Context.Users.Count() > 0)
@@ -74,6 +79,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetPerson")]
+        [Authorize]
         public ActionResult<Person?> GetPerson([FromQuery] string name)
         {
             Person? person = Context.GetPersonByName(name);
@@ -91,6 +97,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpDelete("DeletePerson")]
+        [Authorize]
         public ActionResult DeletePerson([FromQuery] string name, string confirmation)
         {
             Person? person = Context.GetPersonByName(name);
@@ -134,6 +141,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpPost("AddTransactionFromBody")]
+        [Authorize]
         public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
         {
             Person? person = Context.GetPersonByName(name);
@@ -156,6 +164,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpPost("AddTransaction")]
+        [Authorize]
         public ActionResult<Transaction> AddTransaction
             ([FromQuery] string name, double meal, double communalServices, double medicine,
             double transport, double purchases, double leisure, double savings)
@@ -189,6 +198,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetLastTransaction")]
+        [Authorize]
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
             Person? person = Context.GetPersonByName(name);
@@ -215,6 +225,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpDelete("DeleteLastTransaction")]
+        [Authorize]
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
             Person? person = Context.GetPersonByName(name);
@@ -254,6 +265,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetAllTransactionsByPerson")]
+        [Authorize]
         public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
         {
             Person? person = Context.GetPersonByName(name);
@@ -280,6 +292,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetExpensesForThisMonth")]
+        [Authorize]
         public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name)
         {
             Person? person = Context.GetPersonByName(name);
@@ -309,6 +322,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetExpensesForThisYear")]
+        [Authorize]
         public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name)
         {
             Person? person = Context.GetPersonByName(name);
@@ -338,6 +352,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetExpensesForSpecificMonth")]
+        [Authorize]
         public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year)
         {
             Person? person = Context.GetPersonByName(name);
@@ -381,6 +396,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetExpensesForSpecificYear")]
+        [Authorize]
         public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year)
         {
             Person? person = Context.GetPersonByName(name);
@@ -422,6 +438,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetExpensesForLastWeek")]
+        [Authorize]
         public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name)
         {
             Person? person = Context.GetPersonByName(name);
@@ -452,6 +469,7 @@ namespace Finance_Organizer.Controllers
         }
 
         [HttpGet("GetExpensesForSpecificPeriod")]
+        [Authorize]
         public ActionResult<Categories> GetExpensesForSpecificPeriod
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, int dayEnd, int monthEnd, int yearEnd)
         {

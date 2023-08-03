@@ -1,13 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Finance_Organizer.Business;
+using Microsoft.EntityFrameworkCore;
 
-namespace Finance_Organizer
+namespace Finance_Organizer.Database
 {
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {
-            
+
         }
 
         public DbSet<Person> Users => Set<Person>();

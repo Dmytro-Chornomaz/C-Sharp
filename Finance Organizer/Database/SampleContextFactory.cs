@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Finance_Organizer
+namespace Finance_Organizer.Database
 {
     public class SampleContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {

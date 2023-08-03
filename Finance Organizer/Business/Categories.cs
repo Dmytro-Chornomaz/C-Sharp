@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Finance_Organizer
+namespace Finance_Organizer.Business
 {
     public class Categories
     {
         [Key]
         public int Id { get; set; }
         public int PersonId { get; set; }
-        
+
         private double meal = 0;
         private double communalServices = 0;
         private double medicine = 0;
@@ -41,6 +41,6 @@ namespace Finance_Organizer
                 result.Savings += cat.Savings;
             }
             return result;
-        }        
+        }
     }
 }

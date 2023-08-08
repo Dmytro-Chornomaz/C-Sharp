@@ -86,11 +86,27 @@ using static DesignPatterns.Observer;
 //************************************************************************************
 //Adapter
 
-Adaptee adaptee = new Adaptee();
-ITarget target = new MyAdapter(adaptee);
+//Adaptee adaptee = new Adaptee();
+//ITarget target = new MyAdapter(adaptee);
 
-Console.WriteLine("Adaptee interface is incompatible with the client.");
-Console.WriteLine("But with adapter client can call it's method.");
+//Console.WriteLine("Adaptee interface is incompatible with the client.");
+//Console.WriteLine("But with adapter client can call it's method.");
 
-Console.WriteLine(target.GetRequest());
+//Console.WriteLine(target.GetRequest());
+
+//************************************************************************************
+//Mediator
+
+Component1 component1 = new Component1();
+Component2 component2 = new Component2();
+new ConcreteMediator(component1, component2);
+
+Console.WriteLine("Client triggers operation A.");
+component1.DoA();
+
+Console.WriteLine();
+
+Console.WriteLine("Client triggers operation D.");
+component2.DoD();
+
 

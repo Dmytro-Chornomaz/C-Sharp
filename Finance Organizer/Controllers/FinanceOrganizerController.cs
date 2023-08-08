@@ -18,6 +18,7 @@ namespace Finance_Organizer.Controllers
             Logger = logger;
         }
 
+        // The function that creates a new user.
         [HttpPost("CreatePerson")]
         [Authorize]
         public ActionResult<Person> CreatePerson([FromQuery] string name)
@@ -61,6 +62,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns a list of all existing users. It is used for development and testing purposes.
         [HttpGet("GetAllPersons")]
         [Authorize]
         public ActionResult<List<Person>> GetAllPersons()
@@ -78,6 +80,7 @@ namespace Finance_Organizer.Controllers
 
         }
 
+        // The function that returns the specific user. It is used for development and testing purposes.
         [HttpGet("GetPerson")]
         [Authorize]
         public ActionResult<Person?> GetPerson([FromQuery] string name)
@@ -96,6 +99,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that deletes the specific user. It uses the confirmation word "yes".
         [HttpDelete("DeletePerson")]
         [Authorize]
         public ActionResult DeletePerson([FromQuery] string name, string confirmation)
@@ -140,6 +144,8 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        /* The function that adds transaction for the specific user from the request body. 
+         * It is used for development and testing purposes.*/
         [HttpPost("AddTransactionFromBody")]
         [Authorize]
         public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
@@ -163,6 +169,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that adds transaction for the specific user.
         [HttpPost("AddTransaction")]
         [Authorize]
         public ActionResult<Transaction> AddTransaction
@@ -197,6 +204,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the last realized transaction for the specific user.
         [HttpGet("GetLastTransaction")]
         [Authorize]
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
@@ -224,6 +232,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that deletes the last realized transaction for the specific user.
         [HttpDelete("DeleteLastTransaction")]
         [Authorize]
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
@@ -264,6 +273,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns all realized transactions for the specific user.
         [HttpGet("GetAllTransactionsByPerson")]
         [Authorize]
         public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
@@ -291,9 +301,10 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the specific user expenses for the current month.
         [HttpGet("GetExpensesForThisMonth")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name)
+        public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name, bool giveInPercents)
         {
             Person? person = Context.GetPersonByName(name);
 
@@ -305,6 +316,10 @@ namespace Finance_Organizer.Controllers
                     var transactions = person.Transactions.Where(x => x.Time.Month == dateTime.Month);
                     var categories = transactions.Select(x => x.Categories);
                     var result = Categories.CategoriesSum(categories);
+                    if (giveInPercents)
+                    {
+                        result = Categories.CategoriesSumInPercents(result);
+                    }
                     Logger.LogInformation($"*** Getting expenses for this month for a user by the name of {name}. ***");
                     return result;
                 }
@@ -321,9 +336,10 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the specific user expenses for the current year.
         [HttpGet("GetExpensesForThisYear")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name)
+        public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name, bool giveInPercents)
         {
             Person? person = Context.GetPersonByName(name);
 
@@ -335,6 +351,10 @@ namespace Finance_Organizer.Controllers
                     var transactions = person.Transactions.Where(x => x.Time.Year == dateTime.Year);
                     var categories = transactions.Select(x => x.Categories);
                     var result = Categories.CategoriesSum(categories);
+                    if (giveInPercents)
+                    {
+                        result = Categories.CategoriesSumInPercents(result);
+                    }
                     Logger.LogInformation($"*** Getting expenses for this year for a user by the name of {name}. ***");
                     return result;
                 }
@@ -351,9 +371,11 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the specific user expenses for the specific month.
         [HttpGet("GetExpensesForSpecificMonth")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year)
+        public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year,
+            bool giveInPercents)
         {
             Person? person = Context.GetPersonByName(name);
 
@@ -372,6 +394,10 @@ namespace Finance_Organizer.Controllers
                             .Where(x => x.Time.Month == dateTime.Month && x.Time.Year == dateTime.Year);
                         var categories = transactions.Select(x => x.Categories);
                         var result = Categories.CategoriesSum(categories);
+                        if (giveInPercents)
+                        {
+                            result = Categories.CategoriesSumInPercents(result);
+                        }
                         Logger.LogInformation($"*** Getting expenses for {month}/{year} date for a user by the name of {name}. ***");
                         return result;
 
@@ -395,9 +421,10 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the specific user expenses for the specific year.
         [HttpGet("GetExpensesForSpecificYear")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year)
+        public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year, bool giveInPercents)
         {
             Person? person = Context.GetPersonByName(name);
 
@@ -414,6 +441,10 @@ namespace Finance_Organizer.Controllers
                             .Where(x => x.Time.Year == dateTime.Year);
                         var categories = transactions.Select(x => x.Categories);
                         var result = Categories.CategoriesSum(categories);
+                        if (giveInPercents)
+                        {
+                            result = Categories.CategoriesSumInPercents(result);
+                        }
                         Logger.LogInformation($"*** Getting expenses for {year} year for a user by the name of {name}. ***");
 
                         return result;
@@ -437,9 +468,10 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the specific user expenses for the last 7 days.
         [HttpGet("GetExpensesForLastWeek")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name)
+        public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name, bool giveInPercents)
         {
             Person? person = Context.GetPersonByName(name);
 
@@ -452,6 +484,10 @@ namespace Finance_Organizer.Controllers
                     var transactions = person.Transactions.Where(x => x.Time >= weekAgo);
                     var categories = transactions.Select(x => x.Categories);
                     var result = Categories.CategoriesSum(categories);
+                    if (giveInPercents)
+                    {
+                        result = Categories.CategoriesSumInPercents(result);
+                    }
                     Logger.LogInformation($"*** Getting expenses for last week for a user by the name of {name}. ***");
                     return result;
                 }
@@ -468,10 +504,12 @@ namespace Finance_Organizer.Controllers
             }
         }
 
+        // The function that returns the specific user expenses for a specific period.
         [HttpGet("GetExpensesForSpecificPeriod")]
         [Authorize]
         public ActionResult<Categories> GetExpensesForSpecificPeriod
-            ([FromQuery] string name, int dayStart, int monthStart, int yearStart, int dayEnd, int monthEnd, int yearEnd)
+            ([FromQuery] string name, int dayStart, int monthStart, int yearStart, 
+            int dayEnd, int monthEnd, int yearEnd, bool giveInPercents)
         {
             Person? person = Context.GetPersonByName(name);
 
@@ -502,6 +540,10 @@ namespace Finance_Organizer.Controllers
                             .Where(x => x.Time >= dateStart && x.Time <= dateEnd);
                         var categories = transactions.Select(x => x.Categories);
                         var result = Categories.CategoriesSum(categories);
+                        if (giveInPercents)
+                        {
+                            result = Categories.CategoriesSumInPercents(result);
+                        }
                         Logger.LogInformation($"*** Getting expenses for specific period for a user by the name of {name}. ***");
                         return result;
                     }

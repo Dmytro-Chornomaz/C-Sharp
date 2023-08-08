@@ -2,6 +2,7 @@
 
 namespace Finance_Organizer.Business
 {
+    // This class contains the data of a specific transaction. That is the entry of an expense record by a specific user.
     public class Transaction
     {
         [Key]

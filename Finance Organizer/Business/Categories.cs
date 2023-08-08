@@ -1,7 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
 
 namespace Finance_Organizer.Business
 {
+    /* This class contains a list of expense categories. An instance of this class is used both to enter 
+     * the list of categories into the database and to present financial statements to the user. 
+     * It is possible to view financial statements in both currency and percentage.*/
     public class Categories
     {
         [Key]
@@ -25,7 +29,8 @@ namespace Finance_Organizer.Business
         public double SummaryExpenses => Meal + CommunalServices + Medicine + Transport + Purchases + Leisure;
         public double Savings { get => savings; set => savings = Math.Round(value, 2); }
 
-
+        /* This function summarizes the categories of expenses from different transactions, 
+         * allowing you to get the total expenses for a certain period of time.*/
         public static Categories CategoriesSum(IEnumerable<Categories> categories)
         {
             Categories result = new Categories();
@@ -41,6 +46,25 @@ namespace Finance_Organizer.Business
                 result.Savings += cat.Savings;
             }
             return result;
+        }
+
+        // This function allows you to get a percentage representation of expenses.
+        public static Categories CategoriesSumInPercents(Categories categories)
+        {
+            double allMoney = categories.SummaryExpenses + categories.Savings;
+            double onePercent = allMoney / 100;
+
+            Categories resultInPercents = new Categories();
+
+            resultInPercents.Meal = categories.Meal / onePercent;
+            resultInPercents.CommunalServices = categories.CommunalServices / onePercent;
+            resultInPercents.Medicine = categories.Medicine / onePercent;
+            resultInPercents.Transport = categories.Transport / onePercent;
+            resultInPercents.Purchases = categories.Purchases / onePercent;
+            resultInPercents.Leisure = categories.Leisure / onePercent;
+            resultInPercents.Savings = categories.Savings / onePercent;
+
+            return resultInPercents;
         }
     }
 }

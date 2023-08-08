@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Finance_Organizer.Business
 {
+    // This class contains the data of a specific user.
     public class Person
     {
         [Key]

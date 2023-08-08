@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -25,6 +23,7 @@ namespace Finance_Organizer.Controllers
             Logger = logger;
         }
 
+        // The function that generates a security token.
         [HttpPost]
         public string GenerateToken([FromBody] LoginModel request)
         {
@@ -46,6 +45,7 @@ namespace Finance_Organizer.Controllers
             return tokenHandler.WriteToken(token);
         }
 
+        // The function that verifies the token compliance.
         [HttpGet]
         public bool VerifyToken(string token)
         {

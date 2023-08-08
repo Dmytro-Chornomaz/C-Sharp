@@ -24,7 +24,7 @@ namespace Finance_Organizer.Controllers
         }
 
         // The function that generates a security token.
-        [HttpPost]
+        [HttpPost("GenerateToken")]
         public string GenerateToken([FromBody] LoginModel request)
         {
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(MySecret));
@@ -46,7 +46,7 @@ namespace Finance_Organizer.Controllers
         }
 
         // The function that verifies the token compliance.
-        [HttpGet]
+        [HttpGet("VerifyToken")]
         public bool VerifyToken(string token)
         {
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(MySecret));

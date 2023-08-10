@@ -67,7 +67,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<List<Person>> GetAllPersons()
         {
-            if (Context.Users.Count() > 0)
+            if (Context.Users.Count() != 0)
             {
                 Logger.LogInformation($"*** Creation of users list. ***");
                 return Context.Users.ToList();
@@ -213,7 +213,7 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                if (person.Transactions.Count() > 0)
+                if (person.Transactions.Count() != 0)
                 {
                     var lastTransaction = person.Transactions.LastOrDefault();
                     Logger.LogInformation($"*** Getting a last transaction for a user by the name of {name}. ***");
@@ -243,10 +243,10 @@ namespace Finance_Organizer.Controllers
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    if (person.Transactions.Count() > 0)
+                    if (person.Transactions.Count() != 0)
                     {
                         var lastTransaction = person.Transactions.LastOrDefault();
-                        person.Transactions.Remove(lastTransaction!);
+                        Context.Transactions.Remove(lastTransaction!);
                         var categoriesFromLastTransaction = lastTransaction!.Categories;
                         Context.Categories.Remove(categoriesFromLastTransaction);
                         Context.SaveChanges();
@@ -282,7 +282,7 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                if (person.Transactions.Count() > 0)
+                if (person.Transactions.Count() != 0)
                 {
                     Logger.LogInformation($"*** Getting all transactions for a user by the name of {name}. ***");
                     return person.Transactions;
@@ -310,7 +310,7 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                if (person.Transactions.Count() > 0)
+                if (person.Transactions.Count() != 0)
                 {
                     DateTime dateTime = DateTime.Now;
                     var transactions = person.Transactions.Where(x => x.Time.Month == dateTime.Month);
@@ -345,7 +345,7 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                if (person.Transactions.Count() > 0)
+                if (person.Transactions.Count() != 0)
                 {
                     DateTime dateTime = DateTime.Now;
                     var transactions = person.Transactions.Where(x => x.Time.Year == dateTime.Year);
@@ -387,7 +387,7 @@ namespace Finance_Organizer.Controllers
             {
                 if (person != null)
                 {
-                    if (person.Transactions.Count() > 0)
+                    if (person.Transactions.Count() != 0)
                     {
                         DateTime dateTime = new DateTime(year, month, 1);
                         var transactions = person.Transactions
@@ -434,7 +434,7 @@ namespace Finance_Organizer.Controllers
             {
                 if (person != null)
                 {
-                    if (person.Transactions.Count() > 0)
+                    if (person.Transactions.Count() != 0)
                     {
                         DateTime dateTime = new DateTime(year, 1, 1);
                         var transactions = person.Transactions
@@ -477,7 +477,7 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                if (person.Transactions.Count() > 0)
+                if (person.Transactions.Count() != 0)
                 {
                     DateTime dateTime = DateTime.Now;
                     DateTime weekAgo = dateTime.AddDays(-7);
@@ -531,7 +531,7 @@ namespace Finance_Organizer.Controllers
             {
                 if (person != null)
                 {
-                    if (person.Transactions.Count() > 0)
+                    if (person.Transactions.Count() != 0)
                     {
                         DateTime dateStart = new DateTime(yearStart, monthStart, dayStart);
                         DateTime dateEnd = new DateTime(yearEnd, monthEnd, dayEnd);

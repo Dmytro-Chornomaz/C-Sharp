@@ -19,7 +19,7 @@ namespace HomeWork7.Controllers
         [HttpGet]
         public ActionResult<List<Pirate>> GetCrew()
         {
-            if (Context.PiratesDB.Count() > 0)
+            if (Context.PiratesDB.Count() != 0)
             {
                 Logger.LogInformation("Getting all crew.");
                 return Context.PiratesDB.ToList();

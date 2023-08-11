@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayGround", "PlayGround\Pl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatterns", "DesignPatterns\DesignPatterns.csproj", "{D15F47E6-BF57-4605-A44D-F7B13399A0FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tech_Task_Infopulse", "Tech_Task_Infopulse\Tech_Task_Infopulse.csproj", "{16E5CFBB-880D-451A-95E0-66A9F7B3ABEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tech_Task_Infopulse", "Tech_Task_Infopulse\Tech_Task_Infopulse.csproj", "{16E5CFBB-880D-451A-95E0-66A9F7B3ABEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

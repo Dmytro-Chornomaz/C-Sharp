@@ -1,8 +1,13 @@
 ﻿
-string smth = """
-    1. Beer
-    2. Rome
-    3. Wine
-    """;
+decimal value = 104.64257m;
 
-Console.WriteLine(smth);
+var count = BitConverter.GetBytes(decimal.GetBits(value)[3])[2];
+
+Console.WriteLine(count);
+
+decimal a = 123.11m;
+
+if ((a - decimal.Round(a, 2)) != 0)
+{
+    Console.WriteLine("Oops!");
+}

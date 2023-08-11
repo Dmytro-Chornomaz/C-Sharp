@@ -10,8 +10,7 @@ namespace Tech_Task_Infopulse
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
         : base(options)
-        {
-            //Database.EnsureDeleted();
+        {            
             Database.EnsureCreated();
         }
 
@@ -30,7 +29,7 @@ namespace Tech_Task_Infopulse
         public Order ReturnLastOrder()
         {
             int lastId = Orders.Max(a => a.OrderNumber);
-            return Orders.Include(a => a.Products).FirstOrDefault(a => a.OrderNumber == lastId);
+            return Orders.Include(a => a.Products).FirstOrDefault(a => a.OrderNumber == lastId)!;
         }
     }
 }

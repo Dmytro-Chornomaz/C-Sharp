@@ -10,12 +10,12 @@ namespace Finance_Organizer.Controllers
     [ApiController]
     public class FinanceOrganizerController : ControllerBase
     {
-        private readonly ApplicationDbContext Context;
-        private readonly ILogger<FinanceOrganizerController> Logger;
+        private readonly ApplicationDbContext _Context;
+        private readonly ILogger<FinanceOrganizerController> _Logger;
         public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger)
         {
-            Context = context;
-            Logger = logger;
+            _Context = context;
+            _Logger = logger;
         }
 
         // The function that creates a new user.
@@ -25,22 +25,22 @@ namespace Finance_Organizer.Controllers
         {
             if (name != null)
             {
-                if (Context.Users.Any(x => x.Name == name))
+                if (_Context.Users.Any(x => x.Name == name))
                 {
-                    Logger.LogWarning($"*** This name user exists. ***");
+                    _Logger.LogWarning($"*** This name user exists. ***");
                     return BadRequest();
                 }
                 else
                 {
                     int id;
 
-                    if (Context.Users.Count() == 0)
+                    if (_Context.Users.Count() == 0)
                     {
                         id = 1;
                     }
                     else
                     {
-                        id = Context.Users.Max(x => x.Id) + 1;
+                        id = _Context.Users.Max(x => x.Id) + 1;
                     }
 
                     Person person = new Person
@@ -48,16 +48,16 @@ namespace Finance_Organizer.Controllers
                         Id = id,
                         Name = name
                     };
-                    Context.Users.Add(person);
-                    Context.SaveChanges();
-                    Logger.LogInformation($"*** Creation of a user with the name {name} ***");
+                    _Context.Users.Add(person);
+                    _Context.SaveChanges();
+                    _Logger.LogInformation($"*** Creation of a user with the name {name} ***");
                     return person;
                 }
 
             }
             else
             {
-                Logger.LogWarning($"*** Did not enter a user name. ***");
+                _Logger.LogWarning($"*** Did not enter a user name. ***");
                 return BadRequest();
             }
         }
@@ -67,14 +67,14 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<List<Person>> GetAllPersons()
         {
-            if (Context.Users.Count() != 0)
+            if (_Context.Users.Count() != 0)
             {
-                Logger.LogInformation($"*** Creation of users list. ***");
-                return Context.Users.ToList();
+                _Logger.LogInformation($"*** Creation of users list. ***");
+                return _Context.Users.ToList();
             }
             else
             {
-                Logger.LogWarning($"*** No users in a list. ***");
+                _Logger.LogWarning($"*** No users in a list. ***");
                 return NotFound();
             }
 
@@ -85,16 +85,16 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Person?> GetPerson([FromQuery] string name)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
-                Logger.LogInformation($"*** Getting a user by the name of {name}. ***");
+                _Logger.LogInformation($"*** Getting a user by the name of {name}. ***");
                 return person;
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -104,42 +104,42 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult DeletePerson([FromQuery] string name, string confirmation)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
                 if (confirmation.ToLower() == "yes")
                 {
-                    Context.Users.Remove(person);
+                    _Context.Users.Remove(person);
 
                     var transactionsForDeleting = person.Transactions.ToList();
 
                     foreach (var transaction in transactionsForDeleting)
                     {
-                        Context.Transactions.Remove(transaction);
+                        _Context.Transactions.Remove(transaction);
                     }
 
-                    var categoriesForDeleting = Context.Categories
+                    var categoriesForDeleting = _Context.Categories
                                                    .Where(x => x.PersonId == person.Id).ToList();
 
                     foreach (var cat in categoriesForDeleting)
                     {
-                        Context.Categories.Remove(cat);
+                        _Context.Categories.Remove(cat);
                     }
 
-                    Context.SaveChanges();
-                    Logger.LogInformation($"*** Deleting a user by the name of {name}. ***");
+                    _Context.SaveChanges();
+                    _Logger.LogInformation($"*** Deleting a user by the name of {name}. ***");
                     return NoContent();
                 }
                 else
                 {
-                    Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
+                    _Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
                     return Ok();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -150,7 +150,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
@@ -158,13 +158,13 @@ namespace Finance_Organizer.Controllers
                 transaction.Categories.PersonId = transaction.PersonId;
 
                 person.Transactions.Add(transaction);
-                Context.SaveChanges();
-                Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
+                _Context.SaveChanges();
+                _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
                 return transaction;
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -176,7 +176,7 @@ namespace Finance_Organizer.Controllers
             ([FromQuery] string name, double meal, double communalServices, double medicine,
             double transport, double purchases, double leisure, double savings)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
             Transaction transaction = new Transaction();
 
             if (person != null)
@@ -193,13 +193,13 @@ namespace Finance_Organizer.Controllers
                 transaction.Categories.Savings = savings;
 
                 person.Transactions.Add(transaction);
-                Context.SaveChanges();
-                Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
+                _Context.SaveChanges();
+                _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
                 return transaction;
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -209,25 +209,25 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
                 if (person.Transactions.Count() != 0)
                 {
                     var lastTransaction = person.Transactions.LastOrDefault();
-                    Logger.LogInformation($"*** Getting a last transaction for a user by the name of {name}. ***");
+                    _Logger.LogInformation($"*** Getting a last transaction for a user by the name of {name}. ***");
                     return lastTransaction!;
                 }
                 else
                 {
-                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -237,7 +237,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
@@ -246,29 +246,29 @@ namespace Finance_Organizer.Controllers
                     if (person.Transactions.Count() != 0)
                     {
                         var lastTransaction = person.Transactions.LastOrDefault();
-                        Context.Transactions.Remove(lastTransaction!);
+                        _Context.Transactions.Remove(lastTransaction!);
                         var categoriesFromLastTransaction = lastTransaction!.Categories;
-                        Context.Categories.Remove(categoriesFromLastTransaction);
-                        Context.SaveChanges();
-                        Logger.LogInformation($"*** Deleting a last transaction for a user by the name of {name}. ***");
+                        _Context.Categories.Remove(categoriesFromLastTransaction);
+                        _Context.SaveChanges();
+                        _Logger.LogInformation($"*** Deleting a last transaction for a user by the name of {name}. ***");
                         return NoContent();
                     }
                     else
                     {
-                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                        _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
-                    Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
+                    _Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
                     return Ok();
                 }
 
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -278,25 +278,25 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
                 if (person.Transactions.Count() != 0)
                 {
-                    Logger.LogInformation($"*** Getting all transactions for a user by the name of {name}. ***");
+                    _Logger.LogInformation($"*** Getting all transactions for a user by the name of {name}. ***");
                     return person.Transactions;
                 }
                 else
                 {
-                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
 
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -306,7 +306,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name, bool giveInPercents)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
@@ -320,18 +320,18 @@ namespace Finance_Organizer.Controllers
                     {
                         result = Categories.CategoriesSumInPercents(result);
                     }
-                    Logger.LogInformation($"*** Getting expenses for this month for a user by the name of {name}. ***");
+                    _Logger.LogInformation($"*** Getting expenses for this month for a user by the name of {name}. ***");
                     return result;
                 }
                 else
                 {
-                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -341,7 +341,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name, bool giveInPercents)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
@@ -355,18 +355,18 @@ namespace Finance_Organizer.Controllers
                     {
                         result = Categories.CategoriesSumInPercents(result);
                     }
-                    Logger.LogInformation($"*** Getting expenses for this year for a user by the name of {name}. ***");
+                    _Logger.LogInformation($"*** Getting expenses for this year for a user by the name of {name}. ***");
                     return result;
                 }
                 else
                 {
-                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -377,7 +377,7 @@ namespace Finance_Organizer.Controllers
         public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year,
             bool giveInPercents)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkMonth = 12 >= month && month > 0;
@@ -398,25 +398,25 @@ namespace Finance_Organizer.Controllers
                         {
                             result = Categories.CategoriesSumInPercents(result);
                         }
-                        Logger.LogInformation($"*** Getting expenses for {month}/{year} date for a user by the name of {name}. ***");
+                        _Logger.LogInformation($"*** Getting expenses for {month}/{year} date for a user by the name of {name}. ***");
                         return result;
 
                     }
                     else
                     {
-                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                        _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
-                    Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                    _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** Wrong date. ***");
+                _Logger.LogWarning($"*** Wrong date. ***");
                 return BadRequest();
             }
         }
@@ -426,7 +426,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year, bool giveInPercents)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
             bool checkYear = today.Year >= year && year > 2021;
@@ -445,25 +445,25 @@ namespace Finance_Organizer.Controllers
                         {
                             result = Categories.CategoriesSumInPercents(result);
                         }
-                        Logger.LogInformation($"*** Getting expenses for {year} year for a user by the name of {name}. ***");
+                        _Logger.LogInformation($"*** Getting expenses for {year} year for a user by the name of {name}. ***");
 
                         return result;
                     }
                     else
                     {
-                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                        _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
-                    Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                    _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** Wrong date. ***");
+                _Logger.LogWarning($"*** Wrong date. ***");
                 return BadRequest();
             }
         }
@@ -473,7 +473,7 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name, bool giveInPercents)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             if (person != null)
             {
@@ -488,18 +488,18 @@ namespace Finance_Organizer.Controllers
                     {
                         result = Categories.CategoriesSumInPercents(result);
                     }
-                    Logger.LogInformation($"*** Getting expenses for last week for a user by the name of {name}. ***");
+                    _Logger.LogInformation($"*** Getting expenses for last week for a user by the name of {name}. ***");
                     return result;
                 }
                 else
                 {
-                    Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                 return NotFound();
             }
         }
@@ -511,7 +511,7 @@ namespace Finance_Organizer.Controllers
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, 
             int dayEnd, int monthEnd, int yearEnd, bool giveInPercents)
         {
-            Person? person = Context.GetPersonByName(name);
+            Person? person = _Context.GetPersonByName(name);
 
             DateTime today = DateTime.Now;
 
@@ -544,24 +544,24 @@ namespace Finance_Organizer.Controllers
                         {
                             result = Categories.CategoriesSumInPercents(result);
                         }
-                        Logger.LogInformation($"*** Getting expenses for specific period for a user by the name of {name}. ***");
+                        _Logger.LogInformation($"*** Getting expenses for specific period for a user by the name of {name}. ***");
                         return result;
                     }
                     else
                     {
-                        Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                        _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
                         return NotFound();
                     }
                 }
                 else
                 {
-                    Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                    _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
                     return NotFound();
                 }
             }
             else
             {
-                Logger.LogWarning($"*** Wrong date. ***");
+                _Logger.LogWarning($"*** Wrong date. ***");
                 return BadRequest();
             }
         }

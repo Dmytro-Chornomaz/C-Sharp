@@ -1,3 +1,4 @@
+using FluentValidation;
 using HomeWork7;
 using HomeWork7.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using static HomeWork7.Controllers.PiratesController;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ApplicationContext>();
+builder.Services.AddScoped<IValidator<Pirate>, PirateValidator>();
 
 builder.Services.AddDbContext<ApplicationContext>(
         options => options.UseSqlite("name=ConnectionStrings:DefaultConnection"));

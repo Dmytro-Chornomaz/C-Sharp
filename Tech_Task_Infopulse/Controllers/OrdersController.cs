@@ -9,13 +9,13 @@ namespace Tech_Task_Infopulse.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly ApplicationContext Context;
-        private readonly ILogger<OrdersController> Logger;
+        private readonly ApplicationContext _Context;
+        private readonly ILogger<OrdersController> _Logger;
 
         public OrdersController(ApplicationContext context, ILogger<OrdersController> logger)
         {
-            Context = context;
-            Logger = logger;
+            _Context = context;
+            _Logger = logger;
         }
 
         [HttpPost("AddProductsToOrder")]
@@ -24,32 +24,32 @@ namespace Tech_Task_Infopulse.Controllers
         {
             Order order;
 
-            if (Context.Orders.Count() == 0)
+            if (_Context.Orders.Count() == 0)
             {
                 order = new Order() { OrderNumber = 1 };
-                Context.Orders.Add(order);
-                Context.SaveChanges();
-                Logger.LogInformation("*** Created first order. ***");
+                _Context.Orders.Add(order);
+                _Context.SaveChanges();
+                _Logger.LogInformation("*** Created first order. ***");
             }
             else
             {
-                if (Context.ReturnLastOrder().IsEnded)
+                if (_Context.ReturnLastOrder().IsEnded)
                 {
-                    order = new Order() { OrderNumber = Context.ReturnLastOrder().OrderNumber + 1 };
-                    Context.Orders.Add(order);
-                    Context.SaveChanges();
-                    Logger.LogInformation($"*** Created new order {order.OrderNumber}. ***");
+                    order = new Order() { OrderNumber = _Context.ReturnLastOrder().OrderNumber + 1 };
+                    _Context.Orders.Add(order);
+                    _Context.SaveChanges();
+                    _Logger.LogInformation($"*** Created new order {order.OrderNumber}. ***");
                 }
                 else
                 {                    
-                    order = Context.ReturnLastOrder();
-                    Logger.LogInformation($"*** Returned open order {order.OrderNumber}. ***");
+                    order = _Context.ReturnLastOrder();
+                    _Logger.LogInformation($"*** Returned open order {order.OrderNumber}. ***");
                 }
             }
 
             if ((price - decimal.Round(price, 2)) != 0)
             {
-                Logger.LogWarning("*** Incorrect price was entered! ***");
+                _Logger.LogWarning("*** Incorrect price was entered! ***");
                 return BadRequest();
             }
 
@@ -63,23 +63,23 @@ namespace Tech_Task_Infopulse.Controllers
                 Quantity = quantity,
                 Price = price
             };
-            Context.Products.Add(product);
-            Context.Orders.Update(order);
-            Context.SaveChanges();
-            Logger.LogInformation($"*** The product {productId} was saved in the order {order.OrderNumber}. ***");
+            _Context.Products.Add(product);
+            _Context.Orders.Update(order);
+            _Context.SaveChanges();
+            _Logger.LogInformation($"*** The product {productId} was saved in the order {order.OrderNumber}. ***");
             return order;
         }
 
         [HttpPost("SaveOrder")]
         public ActionResult<Order> SaveOrder([FromQuery] string comment, Status status, Customers customer)
         {            
-            if (Context.ReturnLastOrder().IsEnded)
+            if (_Context.ReturnLastOrder().IsEnded)
             {
-                Logger.LogWarning("*** Returned the closed order! ***");
+                _Logger.LogWarning("*** Returned the closed order! ***");
                 return BadRequest();
             }
 
-            var order = Context.ReturnLastOrder();
+            var order = _Context.ReturnLastOrder();
 
             order.Comment = comment;
             order.Status = status;
@@ -87,9 +87,9 @@ namespace Tech_Task_Infopulse.Controllers
             order.OrderDate = DateTime.Now;
             order.IsEnded = true;
             
-            Context.Orders.Update(order);
-            Context.SaveChanges();
-            Logger.LogInformation($"*** Order {order.OrderNumber} was closed and saved. ***");
+            _Context.Orders.Update(order);
+            _Context.SaveChanges();
+            _Logger.LogInformation($"*** Order {order.OrderNumber} was closed and saved. ***");
             return order;
 
         }
@@ -97,17 +97,17 @@ namespace Tech_Task_Infopulse.Controllers
         [HttpDelete("CancelOrder")]
         public ActionResult CancelOrder()
         {
-            if (Context.ReturnLastOrder().IsEnded)
+            if (_Context.ReturnLastOrder().IsEnded)
             {
-                Logger.LogWarning("*** Returned the closed order! ***");
+                _Logger.LogWarning("*** Returned the closed order! ***");
                 return NoContent();
             }
             else
             {
-                Context.ReturnLastOrder().Products.Clear();
-                Context.Orders.Update(Context.ReturnLastOrder());
-                Context.SaveChanges();
-                Logger.LogInformation("*** The order was canceled. ***");
+                _Context.ReturnLastOrder().Products.Clear();
+                _Context.Orders.Update(_Context.ReturnLastOrder());
+                _Context.SaveChanges();
+                _Logger.LogInformation("*** The order was canceled. ***");
                 return NoContent();
             }
 
@@ -116,15 +116,15 @@ namespace Tech_Task_Infopulse.Controllers
         [HttpGet("GetOrder")]
         public ActionResult<Order> GetOrder([FromQuery] int orderNumber)
         {
-            var order = Context.Orders.Include(a => a.Products).FirstOrDefault(a => a.OrderNumber == orderNumber);
+            var order = _Context.Orders.Include(a => a.Products).FirstOrDefault(a => a.OrderNumber == orderNumber);
             if (order != null)
             {
-                Logger.LogInformation($"*** The order {orderNumber} was returned. ***");
+                _Logger.LogInformation($"*** The order {orderNumber} was returned. ***");
                 return order;
             }
             else
             {
-                Logger.LogWarning($"*** The order {orderNumber} does not exist! ***");
+                _Logger.LogWarning($"*** The order {orderNumber} does not exist! ***");
                 return BadRequest();
             }
         }
@@ -132,14 +132,14 @@ namespace Tech_Task_Infopulse.Controllers
         [HttpGet("GetAllOrders")]
         public ActionResult<List<Order>> GetOrders()
         {
-            if (Context.Orders.Count() != 0)
+            if (_Context.Orders.Count() != 0)
             {
-                Logger.LogInformation("*** Returned all the orders. ***");
-                return Context.Orders.Include(a => a.Products).ToList();
+                _Logger.LogInformation("*** Returned all the orders. ***");
+                return _Context.Orders.Include(a => a.Products).ToList();
             }
             else
             {
-                Logger.LogInformation("*** There are no orders! ***");
+                _Logger.LogInformation("*** There are no orders! ***");
                 return NotFound();
             }
         }

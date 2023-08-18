@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace HomeWork7.Controllers
 {
@@ -7,27 +11,29 @@ namespace HomeWork7.Controllers
     [ApiController]
     public class PiratesController : ControllerBase
     {
-        private readonly ApplicationContext Context;
-        private readonly ILogger<PiratesController> Logger;
+        private readonly ApplicationContext _Context;
+        private readonly ILogger<PiratesController> _Logger;
+        private readonly IValidator<Pirate> _Validaror;
 
-        public PiratesController(ApplicationContext context, ILogger<PiratesController> logger)
+        public PiratesController(ApplicationContext context, ILogger<PiratesController> logger, IValidator<Pirate> validator)
         {
-            Context = context;
-            Logger = logger;
+            _Context = context;
+            _Logger = logger;
+            _Validaror = validator;
         }
 
         [HttpGet]
         public ActionResult<List<Pirate>> GetCrew()
         {
-            if (Context.PiratesDB.Count() != 0)
+            if (_Context.PiratesDB.Count() != 0)
             {
-                Logger.LogInformation("Getting all crew.");
-                return Context.PiratesDB.ToList();
+                _Logger.LogInformation("Getting all crew.");
+                return _Context.PiratesDB.ToList();
             }
             else
             {
-                Logger.LogWarning("The crew is empty.");
-                return NotFound();
+                _Logger.LogWarning("The crew is empty.");
+                return BadRequest();
             }
             
         }
@@ -35,17 +41,17 @@ namespace HomeWork7.Controllers
         [HttpGet("byId/{id}")]
         public ActionResult<Pirate?> GetPirate([FromRoute] int id)
         {
-            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+            Pirate? pirate = _Context.PiratesDB.FirstOrDefault(x => x.Id == id);
 
             if (pirate != null)
             {
-                Logger.LogInformation($"Getting pirate by id {id}.");
+                _Logger.LogInformation($"Getting pirate by id {id}.");
                 return pirate;
             }
             else
             {
-                Logger.LogWarning($"No pirate with id {id}");
-                return NotFound();
+                _Logger.LogWarning($"No pirate with id {id}");
+                return BadRequest();
             }
 
         }
@@ -53,42 +59,54 @@ namespace HomeWork7.Controllers
         [HttpGet("byName/{name}")]
         public ActionResult<Pirate?> GetPirateByName([FromRoute] string name)
         {
-            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Name == name);
+            Pirate? pirate = _Context.PiratesDB.FirstOrDefault(x => x.Name == name);
 
             if (pirate != null)
             {
-                Logger.LogInformation($"Getting pirate by name {name}.");
+                _Logger.LogInformation($"Getting pirate by name {name}.");
                 return pirate;
             }
             else
             {
-                Logger.LogWarning($"No pirate with name {name}");
-                return NotFound();
+                _Logger.LogWarning($"No pirate with name {name}");
+                return BadRequest();
             }
 
         }
 
         [HttpPost]
-        public ActionResult<Pirate> AddPirate([FromBody] CreatePirateRequest request)
+        public ActionResult<Pirate> AddPirate([FromBody] Pirate pirate)
         {
-            if (Context.PiratesDB.FirstOrDefault(x => x.Name == request.Name) == null)
+            ValidationResult result = _Validaror.Validate(pirate);
+
+            if (!result.IsValid)
             {
-                Logger.LogInformation($"Creating pirate with name {request.Name}");
-                var pirate = new Pirate
+                foreach (var error in result.Errors)
                 {
-                    Id = Context.PiratesDB.Max(x => x.Id) + 1,
-                    Name = request.Name,
-                    Description = request.Description,
-                    Age = request.Age
+                    _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                }
+
+                return BadRequest();
+            }
+
+            if (_Context.PiratesDB.FirstOrDefault(x => x.Name == pirate.Name) == null)
+            {
+                _Logger.LogInformation($"Creating pirate with name {pirate.Name}");
+                var newPirate = new Pirate
+                {
+                    Id = _Context.PiratesDB.Max(x => x.Id) + 1,
+                    Name = pirate.Name,
+                    Description = pirate.Description,
+                    Age = pirate.Age
                 };
-                Context.PiratesDB.Add(pirate);
-                Context.SaveChanges();
-                Logger.LogInformation($"Created pirate with id {pirate.Id} and name {request.Name}");
-                return pirate;
+                _Context.PiratesDB.Add(newPirate);
+                _Context.SaveChanges();
+                _Logger.LogInformation($"Created pirate with id {newPirate.Id} and name {pirate.Name}");
+                return newPirate;
             }
             else
             {
-                Logger.LogWarning($"A pirate with the name {request.Name} already exists.");
+                _Logger.LogWarning($"A pirate with the name {pirate.Name} already exists.");
                 return BadRequest();
             }
             
@@ -99,44 +117,54 @@ namespace HomeWork7.Controllers
         [Authorize]
         public ActionResult DeletePirate([FromRoute] int id)
         {
-            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+            Pirate? pirate = _Context.PiratesDB.FirstOrDefault(x => x.Id == id);
 
             if (pirate != null)
             {
-                Logger.LogInformation($"Deleting pirate with id {id}");                
-                Context.PiratesDB.Remove(pirate);
-                Context.SaveChanges();
-                Logger.LogInformation($"Deleted pirate with id {id}");
+                _Logger.LogInformation($"Deleting pirate with id {id}");                
+                _Context.PiratesDB.Remove(pirate);
+                _Context.SaveChanges();
+                _Logger.LogInformation($"Deleted pirate with id {id}");
                 return NoContent();
             }
             else
             {
-                Logger.LogWarning($"No pirate with id {id}");
-                return NotFound();
+                _Logger.LogWarning($"No pirate with id {id}");
+                return BadRequest();
             }
         }
 
         //[PirateFilter]
         [HttpPut("{id}")]
         [Authorize]
-        public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] CreatePirateRequest request)
+        public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] Pirate pirate)
         {
-            Pirate? pirate = Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+            Regex regex = new Regex(@"[A-Z](\w*)");
+            MatchCollection matches = regex.Matches(pirate.Name);
 
-            if (pirate != null)
+            if (matches.Count == 0)
             {
-                Logger.LogInformation($"Changing pirate with id {id}");                                
-                pirate.Name = request.Name;
-                pirate.Age = request.Age;
-                pirate.Description = request.Description;
-                Context.SaveChanges();
-                Logger.LogInformation($"Changed pirate with id {id}");
-                return pirate;
+                _Logger.LogWarning($"Incorrect pirate name {pirate.Name}");
+                return BadRequest();
+            }
+
+            Pirate? pirateForChanging = _Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+
+            if (pirateForChanging != null)
+            {
+                _Logger.LogInformation($"Changing pirate with id {id}");
+                pirateForChanging.Name = pirate.Name;
+                pirateForChanging.Age = pirate.Age;
+                pirateForChanging.Description = pirate.Description;
+                _Context.PiratesDB.Update(pirateForChanging);
+                _Context.SaveChanges();
+                _Logger.LogInformation($"Changed pirate with id {id}");
+                return pirateForChanging;
             }
             else
             {
-                Logger.LogWarning($"No pirate with id {id}");
-                return NotFound();
+                _Logger.LogWarning($"No pirate with id {id}");
+                return BadRequest();
             }
 
         }
@@ -144,13 +172,6 @@ namespace HomeWork7.Controllers
         public class Pirate
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Age { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class CreatePirateRequest
-        {
             public string Name { get; set; }
             public string Age { get; set; }
             public string Description { get; set; }

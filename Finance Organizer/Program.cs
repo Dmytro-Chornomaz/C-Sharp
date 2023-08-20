@@ -1,4 +1,7 @@
+using Finance_Organizer.Business;
 using Finance_Organizer.Database;
+using Finance_Organizer.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -70,6 +73,10 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ApplicationDbContext>();
+builder.Services.AddScoped<IValidator<Person>, PersonValidator>();
+builder.Services.AddScoped<IValidator<Transaction>, TransactionValidator>();
+builder.Services.AddScoped<IValidator<Categories>, CategoriesValidator>();
+
 
 string connection = builder.Configuration.GetConnectionString("DefaultConnection")!;
 

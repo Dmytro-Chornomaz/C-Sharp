@@ -2,7 +2,6 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace HomeWork7.Controllers
@@ -13,13 +12,13 @@ namespace HomeWork7.Controllers
     {
         private readonly ApplicationContext _Context;
         private readonly ILogger<PiratesController> _Logger;
-        private readonly IValidator<Pirate> _Validaror;
+        private readonly IValidator<Pirate> _Validator;
 
         public PiratesController(ApplicationContext context, ILogger<PiratesController> logger, IValidator<Pirate> validator)
         {
             _Context = context;
             _Logger = logger;
-            _Validaror = validator;
+            _Validator = validator;
         }
 
         [HttpGet]
@@ -77,7 +76,7 @@ namespace HomeWork7.Controllers
         [HttpPost]
         public ActionResult<Pirate> AddPirate([FromBody] Pirate pirate)
         {
-            ValidationResult result = _Validaror.Validate(pirate);
+            ValidationResult result = _Validator.Validate(pirate);
 
             if (!result.IsValid)
             {

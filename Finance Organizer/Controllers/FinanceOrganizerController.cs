@@ -1,8 +1,10 @@
 using Finance_Organizer.Business;
 using Finance_Organizer.Database;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using System.ComponentModel.DataAnnotations;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace Finance_Organizer.Controllers
 {
@@ -12,10 +14,19 @@ namespace Finance_Organizer.Controllers
     {
         private readonly ApplicationDbContext _Context;
         private readonly ILogger<FinanceOrganizerController> _Logger;
-        public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger)
+        private readonly IValidator<Person> _PersonValidator;
+        private readonly IValidator<Transaction> _TransactionValidator;
+        private readonly IValidator<Categories> _CategoriesValidator;
+
+        public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger, 
+            IValidator<Transaction> transactionValidator, IValidator<Categories> categoriesValidator, 
+            IValidator<Person> personValidator)
         {
             _Context = context;
             _Logger = logger;
+            _TransactionValidator = transactionValidator;
+            _CategoriesValidator = categoriesValidator;
+            _PersonValidator = personValidator;
         }
 
         // The function that creates a new user.
@@ -48,6 +59,19 @@ namespace Finance_Organizer.Controllers
                         Id = id,
                         Name = name
                     };
+
+                    ValidationResult result = _PersonValidator.Validate(person);
+
+                    if (!result.IsValid)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                        }
+
+                        return BadRequest();
+                    }
+
                     _Context.Users.Add(person);
                     _Context.SaveChanges();
                     _Logger.LogInformation($"*** Creation of a user with the name {name} ***");
@@ -157,6 +181,30 @@ namespace Finance_Organizer.Controllers
                 transaction.PersonId = person.Id;
                 transaction.Categories.PersonId = transaction.PersonId;
 
+                ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
+
+                if (!transactionResult.IsValid)
+                {
+                    foreach (var error in transactionResult.Errors)
+                    {
+                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                    }
+
+                    return BadRequest();
+                }
+
+                ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
+
+                if (!categoriesResult.IsValid)
+                {
+                    foreach (var error in categoriesResult.Errors)
+                    {
+                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                    }
+
+                    return BadRequest();
+                }
+
                 person.Transactions.Add(transaction);
                 _Context.SaveChanges();
                 _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
@@ -191,6 +239,30 @@ namespace Finance_Organizer.Controllers
                 transaction.Categories.Purchases = purchases;
                 transaction.Categories.Leisure = leisure;
                 transaction.Categories.Savings = savings;
+
+                ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
+
+                if (!transactionResult.IsValid)
+                {
+                    foreach (var error in transactionResult.Errors)
+                    {
+                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                    }
+
+                    return BadRequest();
+                }
+
+                ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
+
+                if (!categoriesResult.IsValid)
+                {
+                    foreach (var error in categoriesResult.Errors)
+                    {
+                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                    }
+
+                    return BadRequest();
+                }
 
                 person.Transactions.Add(transaction);
                 _Context.SaveChanges();

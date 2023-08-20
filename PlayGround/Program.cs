@@ -1,27 +1,21 @@
-﻿CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
-CancellationToken token = cancelTokenSource.Token;
+﻿int result = Rank(3, new int[] {1, 2, 3, 4, 5, 6, 7, 8});
 
-// задача вычисляет квадраты чисел
-Task task = new Task(() =>
+Console.WriteLine(result);
+
+int Rank(int key, int[] numbers)
 {
-    for (int i = 1; i < 10; i++)
-    {
-        if (token.IsCancellationRequested)  // проверяем наличие сигнала отмены задачи
-        {
-            Console.WriteLine("Операция прервана");
-            return;     //  выходим из метода и тем самым завершаем задачу
-        }
-        Console.WriteLine($"Квадрат числа {i} равен {i * i}");
-        Thread.Sleep(200);
-    }
-}, token);
-task.Start();
+    int low = 0;
+    int high = numbers.Length - 1;
 
-Thread.Sleep(1000);
-// после задержки по времени отменяем выполнение задачи
-cancelTokenSource.Cancel();
-// ожидаем завершения задачи
-Thread.Sleep(1000);
-//  проверяем статус задачи
-Console.WriteLine($"Task Status: {task.Status}");
-cancelTokenSource.Dispose(); // освобождаем ресурсы
+    while (low <= high)
+    {        
+        int mid = low + (high - low) / 2;
+        
+        if (key < numbers[mid]) high = mid - 1;
+
+        else if (key > numbers[mid]) low = mid + 1;
+
+        else return mid;
+    }
+    return -1;
+}

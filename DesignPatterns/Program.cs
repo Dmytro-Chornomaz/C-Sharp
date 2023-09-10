@@ -1,7 +1,7 @@
-﻿using DesignPatterns;
-using static DesignPatterns.Adapter;
-using static DesignPatterns.Builder;
-using static DesignPatterns.Observer;
+﻿using static DesignPatterns.Patterns.Adapter;
+using static DesignPatterns.Patterns.Builder;
+using static DesignPatterns.Patterns.Observer;
+using DesignPatterns.Patterns;
 
 //************************************************************************************
 //Factory Method
@@ -11,17 +11,33 @@ using static DesignPatterns.Observer;
 //************************************************************************************
 //Singleton
 
-//Singleton s1 = Singleton.GetInstance();
-//Singleton s2 = Singleton.GetInstance();
+Console.WriteLine(
+    "{0}\n{1}\n\n{2}\n",
+    "If you see the same value, then singleton was reused (yay!)",
+    "If you see different values, then 2 singletons were created (booo!!)",
+    "RESULT:"
+);
 
-//if (s1 == s2)
-//{
-//    Console.WriteLine("Singleton works, both variables contain the same instance.");
-//}
-//else
-//{
-//    Console.WriteLine("Singleton failed, variables contain different instances.");
-//}
+Thread process1 = new Thread(() =>
+{
+    TestSingleton("FOO");
+});
+Thread process2 = new Thread(() =>
+{
+    TestSingleton("BAR");
+});
+
+process1.Start();
+process2.Start();
+
+process1.Join();
+process2.Join();
+
+static void TestSingleton(string value)
+{
+    Singleton singleton = Singleton.GetInstance(value);
+    Console.WriteLine(singleton.Value);
+}
 
 //************************************************************************************
 //Facade
@@ -97,16 +113,16 @@ using static DesignPatterns.Observer;
 //************************************************************************************
 //Mediator
 
-Component1 component1 = new Component1();
-Component2 component2 = new Component2();
-new ConcreteMediator(component1, component2);
+//Component1 component1 = new Component1();
+//Component2 component2 = new Component2();
+//new ConcreteMediator(component1, component2);
 
-Console.WriteLine("Client triggers operation A.");
-component1.DoA();
+//Console.WriteLine("Client triggers operation A.");
+//component1.DoA();
 
-Console.WriteLine();
+//Console.WriteLine();
 
-Console.WriteLine("Client triggers operation D.");
-component2.DoD();
+//Console.WriteLine("Client triggers operation D.");
+//component2.DoD();
 
 

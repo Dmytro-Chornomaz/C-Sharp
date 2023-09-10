@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns
+﻿namespace DesignPatterns.Patterns
 {
     public class Observer
     {
@@ -42,12 +36,12 @@ namespace DesignPatterns
             public void Attach(IObserver observer)
             {
                 Console.WriteLine("Subject: Attached an observer.");
-                this._observers.Add(observer);
+                _observers.Add(observer);
             }
 
             public void Detach(IObserver observer)
             {
-                this._observers.Remove(observer);
+                _observers.Remove(observer);
                 Console.WriteLine("Subject: Detached an observer.");
             }
 
@@ -69,12 +63,12 @@ namespace DesignPatterns
             public void SomeBusinessLogic()
             {
                 Console.WriteLine("\nSubject: I'm doing something important.");
-                this.State = new Random().Next(0, 10);
+                State = new Random().Next(0, 10);
 
                 Thread.Sleep(15);
 
-                Console.WriteLine("Subject: My state has just changed to: " + this.State);
-                this.Notify();
+                Console.WriteLine("Subject: My state has just changed to: " + State);
+                Notify();
             }
         }
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns
+﻿namespace DesignPatterns.Patterns
 {
     public class Facade
     {
@@ -14,8 +8,8 @@ namespace DesignPatterns
 
         public Facade(Subsystem1 subsystem1, Subsystem2 subsystem2)
         {
-            this._subsystem1 = subsystem1;
-            this._subsystem2 = subsystem2;
+            _subsystem1 = subsystem1;
+            _subsystem2 = subsystem2;
         }
 
         // The Facade's methods are convenient shortcuts to the sophisticated
@@ -24,11 +18,11 @@ namespace DesignPatterns
         public string Operation()
         {
             string result = "Facade initializes subsystems:\n";
-            result += this._subsystem1.operation1();
-            result += this._subsystem2.operation1();
+            result += _subsystem1.operation1();
+            result += _subsystem2.operation1();
             result += "Facade orders subsystems to perform the action:\n";
-            result += this._subsystem1.operationN();
-            result += this._subsystem2.operationZ();
+            result += _subsystem1.operationN();
+            result += _subsystem2.operationZ();
             return result;
         }
     }

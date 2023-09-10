@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns
+﻿namespace DesignPatterns.Patterns
 {
     public class Adapter
     {
@@ -33,12 +27,12 @@ namespace DesignPatterns
 
             public MyAdapter(Adaptee adaptee)
             {
-                this._adaptee = adaptee;
+                _adaptee = adaptee;
             }
 
             public string GetRequest()
             {
-                return $"This is '{this._adaptee.GetSpecificRequest()}'";
+                return $"This is '{_adaptee.GetSpecificRequest()}'";
             }
         }
 

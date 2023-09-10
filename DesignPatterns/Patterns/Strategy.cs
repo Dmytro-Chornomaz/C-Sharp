@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DesignPatterns
+namespace DesignPatterns.Patterns
 {
     // The Context defines the interface of interest to clients.
     class Context
@@ -21,13 +21,13 @@ namespace DesignPatterns
         // also provides a setter to change it at runtime.
         public Context(IStrategy strategy)
         {
-            this._strategy = strategy;
+            _strategy = strategy;
         }
 
         // Usually, the Context allows replacing a Strategy object at runtime.
         public void SetStrategy(IStrategy strategy)
         {
-            this._strategy = strategy;
+            _strategy = strategy;
         }
 
         // The Context delegates some work to the Strategy object instead of
@@ -35,7 +35,7 @@ namespace DesignPatterns
         public void DoSomeBusinessLogic()
         {
             Console.WriteLine("Context: Sorting data using the strategy (not sure how it'll do it)");
-            var result = this._strategy.DoAlgorithm(new List<string> { "a", "b", "c", "d", "e" });
+            var result = _strategy.DoAlgorithm(new List<string> { "a", "b", "c", "d", "e" });
 
             string resultStr = string.Empty;
             foreach (var element in result as List<string>)

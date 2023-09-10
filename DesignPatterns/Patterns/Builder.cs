@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns
+﻿namespace DesignPatterns.Patterns
 {
     public class Builder
     {
@@ -28,28 +22,28 @@ namespace DesignPatterns
             // is used in further assembly.
             public ConcreteBuilder()
             {
-                this.Reset();
+                Reset();
             }
 
             public void Reset()
             {
-                this._product = new Product();
+                _product = new Product();
             }
 
             // All production steps work with the same product instance.
             public void BuildPartA()
             {
-                this._product.Add("PartA1");
+                _product.Add("PartA1");
             }
 
             public void BuildPartB()
             {
-                this._product.Add("PartB1");
+                _product.Add("PartB1");
             }
 
             public void BuildPartC()
             {
-                this._product.Add("PartC1");
+                _product.Add("PartC1");
             }
 
             // Concrete Builders are supposed to provide their own methods for
@@ -67,9 +61,9 @@ namespace DesignPatterns
             // call from the client code before disposing of the previous result.
             public Product GetProduct()
             {
-                Product result = this._product;
+                Product result = _product;
 
-                this.Reset();
+                Reset();
 
                 return result;
             }
@@ -87,16 +81,16 @@ namespace DesignPatterns
 
             public void Add(string part)
             {
-                this._parts.Add(part);
+                _parts.Add(part);
             }
 
             public string ListParts()
             {
                 string str = string.Empty;
 
-                for (int i = 0; i < this._parts.Count; i++)
+                for (int i = 0; i < _parts.Count; i++)
                 {
-                    str += this._parts[i] + ", ";
+                    str += _parts[i] + ", ";
                 }
 
                 str = str.Remove(str.Length - 2); // removing last ", "
@@ -122,14 +116,14 @@ namespace DesignPatterns
             // building steps.
             public void BuildMinimalViableProduct()
             {
-                this._builder.BuildPartA();
+                _builder.BuildPartA();
             }
 
             public void BuildFullFeaturedProduct()
             {
-                this._builder.BuildPartA();
-                this._builder.BuildPartB();
-                this._builder.BuildPartC();
+                _builder.BuildPartA();
+                _builder.BuildPartB();
+                _builder.BuildPartC();
             }
         }
 

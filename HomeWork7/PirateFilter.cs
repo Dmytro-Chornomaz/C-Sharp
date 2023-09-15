@@ -22,5 +22,7 @@ namespace HomeWork7
             Logger.LogInformation($"v2 Before {context.HttpContext.Request.Path}");
             //Console.WriteLine($"v2 Before {context.HttpContext.Request.Path}");
         }
+
+        //123
     }
 }

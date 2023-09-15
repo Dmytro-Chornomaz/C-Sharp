@@ -1,7 +1,7 @@
 ﻿using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 
-namespace Finance_Organizer.Business
+namespace Finance_Organizer.Model
 {
     /* This class contains a list of expense categories. An instance of this class is used both to enter 
      * the list of categories into the database and to present financial statements to the user. 

@@ -1,4 +1,4 @@
-using Finance_Organizer.Business;
+using Finance_Organizer.Model;
 using Finance_Organizer.Database;
 using Finance_Organizer.Validators;
 using FluentValidation;

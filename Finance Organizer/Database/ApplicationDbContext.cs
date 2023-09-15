@@ -1,4 +1,4 @@
-﻿using Finance_Organizer.Business;
+﻿using Finance_Organizer.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Finance_Organizer.Database

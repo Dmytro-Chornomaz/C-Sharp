@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Finance_Organizer.Business
+namespace Finance_Organizer.Model
 {
     // This class contains the data of a specific user.
     public class Person

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using ValidationResult = FluentValidation.Results.ValidationResult;
+using Microsoft.EntityFrameworkCore;
 
 namespace Finance_Organizer.Controllers
 {
@@ -32,7 +33,7 @@ namespace Finance_Organizer.Controllers
         // The function that creates a new user.
         [HttpPost("CreatePerson")]
         [Authorize]
-        public ActionResult<Person> CreatePerson([FromQuery] string name)
+        public async Task<ActionResult<Person>> CreatePersonAsync([FromQuery] string name)
         {
             if (name != null)
             {
@@ -72,8 +73,8 @@ namespace Finance_Organizer.Controllers
                         return BadRequest();
                     }
 
-                    _Context.Users.Add(person);
-                    _Context.SaveChanges();
+                    await _Context.Users.AddAsync(person);
+                    await _Context.SaveChangesAsync();
                     _Logger.LogInformation($"*** Creation of a user with the name {name} ***");
                     return person;
                 }
@@ -89,12 +90,12 @@ namespace Finance_Organizer.Controllers
         // The function that returns a list of all existing users. It is used for development and testing purposes.
         [HttpGet("GetAllPersons")]
         [Authorize]
-        public ActionResult<List<Person>> GetAllPersons()
+        public async Task<ActionResult<List<Person>>> GetAllPersonsAsync()
         {
             if (_Context.Users.Count() != 0)
             {
                 _Logger.LogInformation($"*** Creation of users list. ***");
-                return _Context.Users.ToList();
+                return await _Context.Users.ToListAsync();
             }
             else
             {
@@ -107,9 +108,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user. It is used for development and testing purposes.
         [HttpGet("GetPerson")]
         [Authorize]
-        public ActionResult<Person?> GetPerson([FromQuery] string name)
+        public async Task<ActionResult<Person?>> GetPersonAsync([FromQuery] string name)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -126,9 +127,9 @@ namespace Finance_Organizer.Controllers
         // The function that deletes the specific user. It uses the confirmation word "yes".
         [HttpDelete("DeletePerson")]
         [Authorize]
-        public ActionResult DeletePerson([FromQuery] string name, string confirmation)
+        public async Task<ActionResult> DeletePersonAsync([FromQuery] string name, string confirmation)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -143,15 +144,15 @@ namespace Finance_Organizer.Controllers
                         _Context.Transactions.Remove(transaction);
                     }
 
-                    var categoriesForDeleting = _Context.Categories
-                                                   .Where(x => x.PersonId == person.Id).ToList();
+                    var categoriesForDeleting = await _Context.Categories
+                                                   .Where(x => x.PersonId == person.Id).ToListAsync();
 
                     foreach (var cat in categoriesForDeleting)
                     {
                         _Context.Categories.Remove(cat);
                     }
 
-                    _Context.SaveChanges();
+                    await _Context.SaveChangesAsync();
                     _Logger.LogInformation($"*** Deleting a user by the name of {name}. ***");
                     return NoContent();
                 }
@@ -172,9 +173,9 @@ namespace Finance_Organizer.Controllers
          * It is used for development and testing purposes.*/
         [HttpPost("AddTransactionFromBody")]
         [Authorize]
-        public ActionResult<Transaction> AddTransactionFromBody([FromQuery] string name, [FromBody] Transaction transaction)
+        public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name, [FromBody] Transaction transaction)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -206,7 +207,7 @@ namespace Finance_Organizer.Controllers
                 }
 
                 person.Transactions.Add(transaction);
-                _Context.SaveChanges();
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
                 return transaction;
             }
@@ -220,11 +221,11 @@ namespace Finance_Organizer.Controllers
         // The function that adds transaction for the specific user.
         [HttpPost("AddTransaction")]
         [Authorize]
-        public ActionResult<Transaction> AddTransaction
+        public async Task<ActionResult<Transaction>> AddTransactionAsync
             ([FromQuery] string name, double meal, double communalServices, double medicine,
             double transport, double purchases, double leisure, double savings)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
             Transaction transaction = new Transaction();
 
             if (person != null)
@@ -265,7 +266,7 @@ namespace Finance_Organizer.Controllers
                 }
 
                 person.Transactions.Add(transaction);
-                _Context.SaveChanges();
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
                 return transaction;
             }
@@ -279,9 +280,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns the last realized transaction for the specific user.
         [HttpGet("GetLastTransaction")]
         [Authorize]
-        public ActionResult<Transaction> GetLastTransaction([FromQuery] string name)
+        public async Task<ActionResult<Transaction>> GetLastTransactionAsync([FromQuery] string name)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -307,9 +308,9 @@ namespace Finance_Organizer.Controllers
         // The function that deletes the last realized transaction for the specific user.
         [HttpDelete("DeleteLastTransaction")]
         [Authorize]
-        public ActionResult DeleteLastTransaction([FromQuery] string name, string confirmation)
+        public async Task<ActionResult> DeleteLastTransactionAsync([FromQuery] string name, string confirmation)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -321,7 +322,7 @@ namespace Finance_Organizer.Controllers
                         _Context.Transactions.Remove(lastTransaction!);
                         var categoriesFromLastTransaction = lastTransaction!.Categories;
                         _Context.Categories.Remove(categoriesFromLastTransaction);
-                        _Context.SaveChanges();
+                        await _Context.SaveChangesAsync();
                         _Logger.LogInformation($"*** Deleting a last transaction for a user by the name of {name}. ***");
                         return NoContent();
                     }
@@ -348,9 +349,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns all realized transactions for the specific user.
         [HttpGet("GetAllTransactionsByPerson")]
         [Authorize]
-        public ActionResult<List<Transaction>> GetAllTransactionsByPerson([FromQuery] string name)
+        public async Task<ActionResult<List<Transaction>>> GetAllTransactionsByPersonAsync([FromQuery] string name)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -376,9 +377,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the current month.
         [HttpGet("GetExpensesForThisMonth")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForThisMonth([FromQuery] string name, bool giveInPercents)
+        public async Task<ActionResult<Categories>> GetExpensesForThisMonthAsync([FromQuery] string name, bool giveInPercents)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -411,9 +412,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the current year.
         [HttpGet("GetExpensesForThisYear")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForThisYear([FromQuery] string name, bool giveInPercents)
+        public async Task<ActionResult<Categories>> GetExpensesForThisYearAsync([FromQuery] string name, bool giveInPercents)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -446,10 +447,10 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the specific month.
         [HttpGet("GetExpensesForSpecificMonth")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForSpecificMonth([FromQuery] string name, int month, int year,
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificMonthAsync([FromQuery] string name, int month, int year,
             bool giveInPercents)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             DateTime today = DateTime.Now;
             bool checkMonth = 12 >= month && month > 0;
@@ -496,9 +497,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the specific year.
         [HttpGet("GetExpensesForSpecificYear")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForSpecificYear([FromQuery] string name, int year, bool giveInPercents)
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificYearAsync([FromQuery] string name, int year, bool giveInPercents)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             DateTime today = DateTime.Now;
             bool checkYear = today.Year >= year && year > 2021;
@@ -543,9 +544,9 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the last 7 days.
         [HttpGet("GetExpensesForLastWeek")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForLastWeek([FromQuery] string name, bool giveInPercents)
+        public async Task<ActionResult<Categories>> GetExpensesForLastWeekAsync([FromQuery] string name, bool giveInPercents)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
@@ -579,11 +580,11 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for a specific period.
         [HttpGet("GetExpensesForSpecificPeriod")]
         [Authorize]
-        public ActionResult<Categories> GetExpensesForSpecificPeriod
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificPeriodAsync
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, 
             int dayEnd, int monthEnd, int yearEnd, bool giveInPercents)
         {
-            Person? person = _Context.GetPersonByName(name);
+            Person? person = await _Context.GetPersonByNameAsync(name);
 
             DateTime today = DateTime.Now;
 

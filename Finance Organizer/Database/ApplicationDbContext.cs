@@ -21,10 +21,10 @@ namespace Finance_Organizer.Database
         }
 
         // The function that returns the specified user from the database.
-        public Person? GetPersonByName(string name)
+        public async Task<Person?> GetPersonByNameAsync(string name)
         {
-            Person? person = Users
-                .Include(x => x.Transactions).ThenInclude(y => y.Categories).FirstOrDefault(x => x.Name == name);
+            Person? person = await Users
+                .Include(x => x.Transactions).ThenInclude(y => y.Categories).FirstOrDefaultAsync(x => x.Name == name);
             return person;
         }
     }

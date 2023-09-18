@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace HomeWork7.Controllers
@@ -22,12 +23,12 @@ namespace HomeWork7.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Pirate>> GetCrew()
+        public async Task<ActionResult<List<Pirate>>> GetCrewAsync()
         {
             if (_Context.PiratesDB.Count() != 0)
             {
                 _Logger.LogInformation("Getting all crew.");
-                return _Context.PiratesDB.ToList();
+                return await _Context.PiratesDB.ToListAsync();
             }
             else
             {
@@ -38,9 +39,9 @@ namespace HomeWork7.Controllers
         }
 
         [HttpGet("byId/{id}")]
-        public ActionResult<Pirate?> GetPirate([FromRoute] int id)
+        public async Task<ActionResult<Pirate?>> GetPirateAsync([FromRoute] int id)
         {
-            Pirate? pirate = _Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+            Pirate? pirate = await _Context.PiratesDB.FirstOrDefaultAsync(x => x.Id == id);
 
             if (pirate != null)
             {
@@ -56,9 +57,9 @@ namespace HomeWork7.Controllers
         }
 
         [HttpGet("byName/{name}")]
-        public ActionResult<Pirate?> GetPirateByName([FromRoute] string name)
+        public async Task<ActionResult<Pirate?>> GetPirateByNameAsync([FromRoute] string name)
         {
-            Pirate? pirate = _Context.PiratesDB.FirstOrDefault(x => x.Name == name);
+            Pirate? pirate = await _Context.PiratesDB.FirstOrDefaultAsync(x => x.Name == name);
 
             if (pirate != null)
             {
@@ -74,7 +75,7 @@ namespace HomeWork7.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Pirate> AddPirate([FromBody] Pirate pirate)
+        public async Task<ActionResult<Pirate>> AddPirateAsync([FromBody] Pirate pirate)
         {
             ValidationResult result = _Validator.Validate(pirate);
 
@@ -88,7 +89,7 @@ namespace HomeWork7.Controllers
                 return BadRequest();
             }
 
-            if (_Context.PiratesDB.FirstOrDefault(x => x.Name == pirate.Name) == null)
+            if (await _Context.PiratesDB.FirstOrDefaultAsync(x => x.Name == pirate.Name) == null)
             {
                 _Logger.LogInformation($"Creating pirate with name {pirate.Name}");
                 var newPirate = new Pirate
@@ -98,8 +99,8 @@ namespace HomeWork7.Controllers
                     Description = pirate.Description,
                     Age = pirate.Age
                 };
-                _Context.PiratesDB.Add(newPirate);
-                _Context.SaveChanges();
+                await _Context.PiratesDB.AddAsync(newPirate);
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"Created pirate with id {newPirate.Id} and name {pirate.Name}");
                 return newPirate;
             }
@@ -114,15 +115,15 @@ namespace HomeWork7.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public ActionResult DeletePirate([FromRoute] int id)
+        public async Task<ActionResult> DeletePirateAsync([FromRoute] int id)
         {
-            Pirate? pirate = _Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+            Pirate? pirate = await _Context.PiratesDB.FirstOrDefaultAsync(x => x.Id == id);
 
             if (pirate != null)
             {
                 _Logger.LogInformation($"Deleting pirate with id {id}");                
                 _Context.PiratesDB.Remove(pirate);
-                _Context.SaveChanges();
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"Deleted pirate with id {id}");
                 return NoContent();
             }
@@ -136,7 +137,7 @@ namespace HomeWork7.Controllers
         //[PirateFilter]
         [HttpPut("{id}")]
         [Authorize]
-        public ActionResult<Pirate> ChangePirate([FromRoute] int id, [FromBody] Pirate pirate)
+        public async Task<ActionResult<Pirate>> ChangePirateAsync([FromRoute] int id, [FromBody] Pirate pirate)
         {
             Regex regex = new Regex(@"[A-Z](\w*)");
             MatchCollection matches = regex.Matches(pirate.Name);
@@ -147,7 +148,7 @@ namespace HomeWork7.Controllers
                 return BadRequest();
             }
 
-            Pirate? pirateForChanging = _Context.PiratesDB.FirstOrDefault(x => x.Id == id);
+            Pirate? pirateForChanging = await _Context.PiratesDB.FirstOrDefaultAsync(x => x.Id == id);
 
             if (pirateForChanging != null)
             {
@@ -156,7 +157,7 @@ namespace HomeWork7.Controllers
                 pirateForChanging.Age = pirate.Age;
                 pirateForChanging.Description = pirate.Description;
                 _Context.PiratesDB.Update(pirateForChanging);
-                _Context.SaveChanges();
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"Changed pirate with id {id}");
                 return pirateForChanging;
             }

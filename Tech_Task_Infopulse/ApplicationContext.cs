@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tech_Task_Infopulse.Business;
+using Tech_Task_Infopulse.Model;
 
 namespace Tech_Task_Infopulse
 {
@@ -23,13 +23,13 @@ namespace Tech_Task_Infopulse
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=Pirates.db");
+            optionsBuilder.UseSqlite("Data Source=Tech_Task_Infopulse.db");
         }
         
-        public Order ReturnLastOrder()
+        public async Task<Order?> ReturnLastOrderAsync()
         {
             int lastId = Orders.Max(a => a.OrderNumber);
-            return Orders.Include(a => a.Products).FirstOrDefault(a => a.OrderNumber == lastId)!;
+            return await Orders.Include(a => a.Products).FirstOrDefaultAsync(a => a.OrderNumber == lastId);
         }
     }
 }

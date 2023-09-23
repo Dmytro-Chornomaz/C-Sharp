@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Tech_Task_Infopulse.Business;
+using Tech_Task_Infopulse.Model;
 using Tech_Task_Infopulse.Enums;
 
 namespace Tech_Task_Infopulse.Controllers
@@ -19,30 +19,39 @@ namespace Tech_Task_Infopulse.Controllers
         }
 
         [HttpPost("AddProductsToOrder")]
-        public ActionResult<Order> AddProductsToOrder([FromQuery] int productId, string productName,
+        public async Task<ActionResult<Order>> AddProductsToOrderAsync([FromBody] int productId, string productName,
             string productCategory, string productSize, int quantity, decimal price)
-        {
+        {            
             Order order;
 
             if (_Context.Orders.Count() == 0)
             {
                 order = new Order() { OrderNumber = 1 };
-                _Context.Orders.Add(order);
-                _Context.SaveChanges();
+                await _Context.Orders.AddAsync(order);
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation("*** Created first order. ***");
             }
             else
             {
-                if (_Context.ReturnLastOrder().IsEnded)
+
+                Order? lastOrder = await _Context.ReturnLastOrderAsync();
+
+                if (lastOrder is null)
                 {
-                    order = new Order() { OrderNumber = _Context.ReturnLastOrder().OrderNumber + 1 };
-                    _Context.Orders.Add(order);
-                    _Context.SaveChanges();
+                    _Logger.LogWarning("*** Error accessing the database. ***");
+                    return StatusCode(500);
+                }
+
+                if (lastOrder.IsEnded)
+                {
+                    order = new Order() { OrderNumber = lastOrder.OrderNumber + 1 };
+                    await _Context.Orders.AddAsync(order);
+                    await _Context.SaveChangesAsync();
                     _Logger.LogInformation($"*** Created new order {order.OrderNumber}. ***");
                 }
                 else
                 {                    
-                    order = _Context.ReturnLastOrder();
+                    order = lastOrder;
                     _Logger.LogInformation($"*** Returned open order {order.OrderNumber}. ***");
                 }
             }
@@ -63,50 +72,64 @@ namespace Tech_Task_Infopulse.Controllers
                 Quantity = quantity,
                 Price = price
             };
-            _Context.Products.Add(product);
+            await _Context.Products.AddAsync(product);
             _Context.Orders.Update(order);
-            _Context.SaveChanges();
+            await _Context.SaveChangesAsync();
             _Logger.LogInformation($"*** The product {productId} was saved in the order {order.OrderNumber}. ***");
             return order;
         }
 
         [HttpPost("SaveOrder")]
-        public ActionResult<Order> SaveOrder([FromQuery] string comment, Status status, Customers customer)
-        {            
-            if (_Context.ReturnLastOrder().IsEnded)
+        public async Task<ActionResult<Order>> SaveOrderAsync([FromBody] string comment, Status status, Customers customer)
+        {
+            Order? lastOrder = await _Context.ReturnLastOrderAsync();
+
+            if (lastOrder is null)
+            {
+                _Logger.LogWarning("*** Error accessing the database. ***");
+                return StatusCode(500);
+            }
+
+            if (lastOrder.IsEnded)
             {
                 _Logger.LogWarning("*** Returned the closed order! ***");
                 return BadRequest();
             }
 
-            var order = _Context.ReturnLastOrder();
-
-            order.Comment = comment;
-            order.Status = status;
-            order.CustomerName = customer.ToString();
-            order.OrderDate = DateTime.Now;
-            order.IsEnded = true;
+            lastOrder.Comment = comment;
+            lastOrder.Status = status;
+            lastOrder.CustomerName = customer.ToString();
+            lastOrder.OrderDate = DateTime.Now;
+            lastOrder.IsEnded = true;
             
-            _Context.Orders.Update(order);
-            _Context.SaveChanges();
-            _Logger.LogInformation($"*** Order {order.OrderNumber} was closed and saved. ***");
-            return order;
+            _Context.Orders.Update(lastOrder);
+            await _Context.SaveChangesAsync();
+            _Logger.LogInformation($"*** Order {lastOrder.OrderNumber} was closed and saved. ***");
+            return lastOrder;
 
         }
 
         [HttpDelete("CancelOrder")]
-        public ActionResult CancelOrder()
+        public async Task<ActionResult> CancelOrderAsync()
         {
-            if (_Context.ReturnLastOrder().IsEnded)
+            Order? lastOrder = await _Context.ReturnLastOrderAsync();
+
+            if (lastOrder is null)
+            {
+                _Logger.LogWarning("*** Error accessing the database. ***");
+                return StatusCode(500);
+            }
+
+            if (lastOrder.IsEnded)
             {
                 _Logger.LogWarning("*** Returned the closed order! ***");
                 return NoContent();
             }
             else
             {
-                _Context.ReturnLastOrder().Products.Clear();
-                _Context.Orders.Update(_Context.ReturnLastOrder());
-                _Context.SaveChanges();
+                lastOrder.Products.Clear();
+                _Context.Orders.Update(lastOrder);
+                await _Context.SaveChangesAsync();
                 _Logger.LogInformation("*** The order was canceled. ***");
                 return NoContent();
             }
@@ -114,13 +137,14 @@ namespace Tech_Task_Infopulse.Controllers
         }
 
         [HttpGet("GetOrder")]
-        public ActionResult<Order> GetOrder([FromQuery] int orderNumber)
+        public async Task<ActionResult<Order>> GetOrderAsync([FromQuery] int orderNumber)
         {
-            var order = _Context.Orders.Include(a => a.Products).FirstOrDefault(a => a.OrderNumber == orderNumber);
-            if (order != null)
+            Order? lastOrder = await _Context.ReturnLastOrderAsync();
+
+            if (lastOrder != null)
             {
                 _Logger.LogInformation($"*** The order {orderNumber} was returned. ***");
-                return order;
+                return lastOrder;
             }
             else
             {
@@ -130,20 +154,18 @@ namespace Tech_Task_Infopulse.Controllers
         }
 
         [HttpGet("GetAllOrders")]
-        public ActionResult<List<Order>> GetOrders()
+        public async Task<ActionResult<List<Order>>> GetOrdersAsync()
         {
             if (_Context.Orders.Count() != 0)
             {
                 _Logger.LogInformation("*** Returned all the orders. ***");
-                return _Context.Orders.Include(a => a.Products).ToList();
+                return await _Context.Orders.Include(a => a.Products).ToListAsync();
             }
             else
             {
                 _Logger.LogInformation("*** There are no orders! ***");
                 return NotFound();
             }
-        }
-
-        
+        }        
     }
 }

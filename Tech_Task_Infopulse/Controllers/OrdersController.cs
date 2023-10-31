@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Tech_Task_Infopulse.Model;
-using Tech_Task_Infopulse.Enums;
+using Tech_Task_IP.Model;
+using Tech_Task_IP.Enums;
 
-namespace Tech_Task_Infopulse.Controllers
+namespace Tech_Task_IP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Tech_Task_Infopulse;
+using Tech_Task_IP;
 
 var builder = WebApplication.CreateBuilder(args);
 

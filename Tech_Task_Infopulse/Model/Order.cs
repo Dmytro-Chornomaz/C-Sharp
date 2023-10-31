@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Tech_Task_Infopulse.Enums;
+using Tech_Task_IP.Enums;
 
-namespace Tech_Task_Infopulse.Model
+namespace Tech_Task_IP.Model
 {
     public class Order
     {

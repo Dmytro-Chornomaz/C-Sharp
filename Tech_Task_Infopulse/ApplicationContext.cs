@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tech_Task_Infopulse.Model;
+using Tech_Task_IP.Model;
 
-namespace Tech_Task_Infopulse
+namespace Tech_Task_IP
 {
     public class ApplicationContext : DbContext
     {
@@ -23,7 +23,7 @@ namespace Tech_Task_Infopulse
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=Tech_Task_Infopulse.db");
+            optionsBuilder.UseSqlite("Data Source=Tech_Task_IP.db");
         }
         
         public async Task<Order?> ReturnLastOrderAsync()

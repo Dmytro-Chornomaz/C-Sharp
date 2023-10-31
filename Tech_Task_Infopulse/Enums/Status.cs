@@ -1,4 +1,4 @@
-﻿namespace Tech_Task_Infopulse.Enums
+﻿namespace Tech_Task_IP.Enums
 {
     public enum Status
     {

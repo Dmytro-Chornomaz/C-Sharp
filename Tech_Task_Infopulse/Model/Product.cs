@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Tech_Task_Infopulse.Model
+namespace Tech_Task_IP.Model
 {
     public class Product
     {

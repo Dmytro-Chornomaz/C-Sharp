@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatterns", "DesignPat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tech_Task_IP", "Tech_Task_Infopulse\Tech_Task_IP.csproj", "{16E5CFBB-880D-451A-95E0-66A9F7B3ABEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XML_handler", "XML_handler\XML_handler.csproj", "{39A2065D-0915-4440-8BEC-1A347E160C4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{16E5CFBB-880D-451A-95E0-66A9F7B3ABEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16E5CFBB-880D-451A-95E0-66A9F7B3ABEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16E5CFBB-880D-451A-95E0-66A9F7B3ABEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39A2065D-0915-4440-8BEC-1A347E160C4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A2065D-0915-4440-8BEC-1A347E160C4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39A2065D-0915-4440-8BEC-1A347E160C4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39A2065D-0915-4440-8BEC-1A347E160C4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

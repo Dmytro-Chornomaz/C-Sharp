@@ -18,16 +18,18 @@ namespace Finance_Organizer.Controllers
         private readonly IValidator<Person> _PersonValidator;
         private readonly IValidator<Transaction> _TransactionValidator;
         private readonly IValidator<Categories> _CategoriesValidator;
+        private readonly DateValidator _dateValidator;
 
         public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger, 
             IValidator<Transaction> transactionValidator, IValidator<Categories> categoriesValidator, 
-            IValidator<Person> personValidator)
+            IValidator<Person> personValidator, DateValidator dateValidator)
         {
             _Context = context;
             _Logger = logger;
             _TransactionValidator = transactionValidator;
             _CategoriesValidator = categoriesValidator;
             _PersonValidator = personValidator;
+            _dateValidator = dateValidator;
         }
 
         // The function that creates a new user.
@@ -173,7 +175,8 @@ namespace Finance_Organizer.Controllers
          * It is used for development and testing purposes.*/
         [HttpPost("AddTransactionFromBody")]
         [Authorize]
-        public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name, [FromBody] Transaction transaction)
+        public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name, 
+            [FromBody] Transaction transaction)
         {
             Person? person = await _Context.GetPersonByNameAsync(name);
 
@@ -447,17 +450,13 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the specific month.
         [HttpGet("GetExpensesForSpecificMonth")]
         [Authorize]
-        public async Task<ActionResult<Categories>> GetExpensesForSpecificMonthAsync([FromQuery] string name, int month, int year,
-            bool giveInPercents)
-        {
-            Person? person = await _Context.GetPersonByNameAsync(name);
-
-            DateTime today = DateTime.Now;
-            bool checkMonth = 12 >= month && month > 0;
-            bool checkYear = today.Year >= year && year > 2021;
-
-            if (checkMonth && checkYear)
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificMonthAsync([FromQuery] string name, int month, 
+            int year, bool giveInPercents)
+        {            
+            if (_dateValidator.ValidateDate(month, year))
             {
+                Person? person = await _Context.GetPersonByNameAsync(name);
+
                 if (person != null)
                 {
                     if (person.Transactions.Count() != 0)
@@ -497,14 +496,13 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the specific year.
         [HttpGet("GetExpensesForSpecificYear")]
         [Authorize]
-        public async Task<ActionResult<Categories>> GetExpensesForSpecificYearAsync([FromQuery] string name, int year, bool giveInPercents)
-        {
-            Person? person = await _Context.GetPersonByNameAsync(name);
-
-            DateTime today = DateTime.Now;
-            bool checkYear = today.Year >= year && year > 2021;
-            if (checkYear)
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificYearAsync([FromQuery] string name, int year, 
+            bool giveInPercents)
+        {            
+            if (_dateValidator.ValidateDate(year))
             {
+                Person? person = await _Context.GetPersonByNameAsync(name);
+
                 if (person != null)
                 {
                     if (person.Transactions.Count() != 0)
@@ -583,25 +581,11 @@ namespace Finance_Organizer.Controllers
         public async Task<ActionResult<Categories>> GetExpensesForSpecificPeriodAsync
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, 
             int dayEnd, int monthEnd, int yearEnd, bool giveInPercents)
-        {
-            Person? person = await _Context.GetPersonByNameAsync(name);
-
-            DateTime today = DateTime.Now;
-
-            int daysInMonthStart = DateTime.DaysInMonth(yearStart, monthStart);
-            bool checkDayStart = daysInMonthStart >= dayStart && dayStart > 0;
-            bool checkMonthStart = 12 >= monthStart && monthStart > 0;
-            bool checkYearStart = today.Year >= yearStart && yearStart > 2021;
-
-            int daysInMonthEnd = DateTime.DaysInMonth(yearEnd, monthEnd);
-            bool checkDayEnd = daysInMonthEnd >= dayEnd && dayEnd > 0;
-            bool checkMonthEnd = 12 >= monthEnd && monthEnd > 0;
-            bool checkYearEnd = today.Year >= yearEnd && yearEnd > 2021;
-
-            bool yearsComparison = yearStart <= yearEnd;
-
-            if (checkDayStart && checkMonthStart && checkYearStart && checkDayEnd && checkMonthEnd && checkYearEnd && yearsComparison)
+        {                        
+            if (_dateValidator.ValidateDate(dayStart, monthStart, yearStart, dayEnd, monthEnd, yearEnd))
             {
+                Person? person = await _Context.GetPersonByNameAsync(name);
+
                 if (person != null)
                 {
                     if (person.Transactions.Count() != 0)

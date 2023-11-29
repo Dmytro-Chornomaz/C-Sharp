@@ -27,5 +27,12 @@ namespace Finance_Organizer.Database
                 .Include(x => x.Transactions).ThenInclude(y => y.Categories).FirstOrDefaultAsync(x => x.Name == name);
             return person;
         }
+
+        // The function finds the user by Name and Password.
+        public async Task<Person?> GetPersonByNameAndPasswordAsync(string name, string password)
+        {
+            Person? person = await Users.FirstOrDefaultAsync(x => x.Name == name && x.Password == password);
+            return person;
+        }
     }
 }

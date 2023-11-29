@@ -58,7 +58,7 @@ builder.Services.AddAuthentication(options =>
     var secret = builder.Configuration.GetValue<string>("Auth:Secret")!;
     var issuer = builder.Configuration.GetValue<string>("Auth:Issuer");
     var audience = builder.Configuration.GetValue<string>("Auth:Audience");
-    var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
+    var mySecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
 
     options.TokenValidationParameters = new TokenValidationParameters
     {

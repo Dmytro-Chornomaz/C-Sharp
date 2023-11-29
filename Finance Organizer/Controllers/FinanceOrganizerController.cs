@@ -34,7 +34,6 @@ namespace Finance_Organizer.Controllers
 
         // The function that creates a new user.
         [HttpPost("CreatePerson")]
-        [Authorize]
         public async Task<ActionResult<Person>> CreatePersonAsync([FromQuery] string name)
         {
             if (name != null)

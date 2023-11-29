@@ -1,8 +1,4 @@
 ﻿namespace Finance_Organizer
 {
-    public class LoginModel
-    {
-        public string Login { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
+    public record class LoginModel(string Login, string Password);
 }

@@ -60,16 +60,16 @@ namespace Finance_Organizer.Controllers
                 SecurityToken secutityToken = tokenHandler.CreateToken(tokenDescriptor);
                 _Logger.LogInformation("*** The token was successfully created. ***");
                 string token = tokenHandler.WriteToken(secutityToken);
-                return token;
+                //return token;
 
-                //var responseObj = new
-                //{
-                //    accessToken = token,
-                //    userName = person.Name
-                //};
+                var responseObj = new
+                {
+                    accessToken = token,
+                    userName = person.Name
+                };
 
-                //string response = JsonSerializer.Serialize(responseObj);
-                //return response;
+                string response = JsonSerializer.Serialize(responseObj);
+                return response;
             }
             else
             {

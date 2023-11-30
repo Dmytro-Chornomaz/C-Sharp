@@ -416,6 +416,14 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public async Task<ActionResult<Categories>> GetExpensesForThisYearAsync([FromQuery] string name, bool giveInPercents)
         {
+            _Logger.LogInformation("*** Method GetExpensesForThisYearAsync started. ***");
+
+            if (name == null)
+            {
+                _Logger.LogInformation("*** Name is null. ***");
+                return BadRequest();
+            }
+
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
@@ -441,7 +449,7 @@ namespace Finance_Organizer.Controllers
             }
             else
             {
-                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {name} in the DB. ***");
                 return NotFound();
             }
         }

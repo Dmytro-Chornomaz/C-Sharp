@@ -36,6 +36,14 @@ namespace Finance_Organizer.Controllers
         [HttpPost("GenerateToken")]
         public async Task<ActionResult<string>> GenerateTokenAsync([FromBody] LoginModel request)
         {
+            _Logger.LogInformation("*** Method GenerateTokenAsync started. ***");
+
+            if (request.Login == null || request.Password == null)
+            {
+                _Logger.LogInformation("*** Request is null. ***");
+                return BadRequest();
+            }
+
             SaltedHash saltedHash = new SaltedHash();
             string hashedRequestPassword = saltedHash.ComputeSaltedHash(request.Password);
 

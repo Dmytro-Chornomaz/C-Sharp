@@ -282,8 +282,16 @@ namespace Finance_Organizer.Controllers
         // The function that returns the last realized transaction for the specific user.
         [HttpGet("GetLastTransaction")]
         [Authorize]
-        public async Task<ActionResult<Transaction>> GetLastTransactionAsync([FromQuery] string name)
+        public async Task<ActionResult<Categories>> GetLastTransactionAsync([FromQuery] string name)
         {
+            _Logger.LogInformation("*** Method GetLastTransactionAsync started. ***");
+
+            if (name == null)
+            {
+                _Logger.LogInformation("*** Name is null. ***");
+                return BadRequest();
+            }
+
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
@@ -292,7 +300,8 @@ namespace Finance_Organizer.Controllers
                 {
                     var lastTransaction = person.Transactions.LastOrDefault();
                     _Logger.LogInformation($"*** Getting a last transaction for a user by the name of {name}. ***");
-                    return lastTransaction!;
+                    var categories = lastTransaction!.Categories;
+                    return categories;
                 }
                 else
                 {
@@ -303,7 +312,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -381,6 +390,14 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public async Task<ActionResult<Categories>> GetExpensesForThisMonthAsync([FromQuery] string name, bool giveInPercents)
         {
+            _Logger.LogInformation("*** Method GetExpensesForThisMonthAsync started. ***");
+
+            if (name == null)
+            {
+                _Logger.LogInformation("*** Name is null. ***");
+                return BadRequest();
+            }
+
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
@@ -407,7 +424,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -450,7 +467,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the DB. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -551,6 +568,14 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public async Task<ActionResult<Categories>> GetExpensesForLastWeekAsync([FromQuery] string name, bool giveInPercents)
         {
+            _Logger.LogInformation("*** Method GetExpensesForLastWeekAsync started. ***");
+
+            if (name == null)
+            {
+                _Logger.LogInformation("*** Name is null. ***");
+                return BadRequest();
+            }
+
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
@@ -578,7 +603,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 

@@ -1,9 +1,6 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Finance_Organizer.Database;
+﻿using Finance_Organizer.Database;
 using Finance_Organizer.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -84,28 +81,7 @@ namespace Finance_Organizer.Controllers
                 _Logger.LogInformation("*** The person was not found in the database. ***");
                 return Unauthorized();
             }            
-        }
-
-        //[HttpPost("GenerateToken")]
-        //public string GenerateToken([FromBody] LoginModel request)
-        //{
-        //    var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_MySecret));
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = new ClaimsIdentity(new Claim[]
-        //        {
-        //            new Claim(ClaimTypes.NameIdentifier, request.Login),
-        //        }),
-        //        Expires = DateTime.UtcNow.AddDays(7),
-        //        Issuer = _MyIssuer,
-        //        Audience = _MyAudience,
-        //        SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)
-        //    };
-        //    var token = tokenHandler.CreateToken(tokenDescriptor);
-        //    _Logger.LogInformation($"*** The token was successfully created. ***");
-        //    return tokenHandler.WriteToken(token);
-        //}
+        }        
 
         // The function that verifies the token compliance.
         [HttpGet("VerifyToken")]

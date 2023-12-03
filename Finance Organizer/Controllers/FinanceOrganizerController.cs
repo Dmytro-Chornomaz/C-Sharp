@@ -286,9 +286,9 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetLastTransactionAsync started. ***");
 
-            if (name == null)
+            if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null. ***");
+                _Logger.LogInformation("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -392,9 +392,9 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForThisMonthAsync started. ***");
 
-            if (name == null)
+            if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null. ***");
+                _Logger.LogInformation("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -435,9 +435,9 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForThisYearAsync started. ***");
 
-            if (name == null)
+            if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null. ***");
+                _Logger.LogInformation("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -570,9 +570,9 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForLastWeekAsync started. ***");
 
-            if (name == null)
+            if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null. ***");
+                _Logger.LogInformation("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -613,7 +613,15 @@ namespace Finance_Organizer.Controllers
         public async Task<ActionResult<Categories>> GetExpensesForSpecificPeriodAsync
             ([FromQuery] string name, int dayStart, int monthStart, int yearStart, 
             int dayEnd, int monthEnd, int yearEnd, bool giveInPercents)
-        {                        
+        {
+            _Logger.LogInformation("*** Method GetExpensesForSpecificPeriodAsync started. ***");
+
+            if (name == null || name == "")
+            {
+                _Logger.LogInformation("*** Name is null or empty string. ***");
+                return BadRequest();
+            }
+
             if (_dateValidator.ValidateDate(dayStart, monthStart, yearStart, dayEnd, monthEnd, yearEnd))
             {
                 Person? person = await _Context.GetPersonByNameAsync(name);
@@ -645,7 +653,7 @@ namespace Finance_Organizer.Controllers
                 else
                 {
                     _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                    return NotFound();
+                    return BadRequest();
                 }
             }
             else

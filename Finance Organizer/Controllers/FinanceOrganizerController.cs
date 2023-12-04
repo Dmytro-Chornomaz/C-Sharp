@@ -476,9 +476,17 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public async Task<ActionResult<Categories>> GetExpensesForSpecificMonthAsync([FromQuery] string name, int month, 
             int year, bool giveInPercents)
-        {            
-            if (_dateValidator.ValidateDate(month, year))
+        {
+            _Logger.LogInformation("*** Method GetExpensesForSpecificMonthAsync started. ***");
+
+            if (name == null || name == "")
             {
+                _Logger.LogInformation("*** Name is null or empty string. ***");
+                return BadRequest();
+            }
+
+            if (_dateValidator.ValidateDate(month, year))
+            {                
                 Person? person = await _Context.GetPersonByNameAsync(name);
 
                 if (person != null)
@@ -507,7 +515,7 @@ namespace Finance_Organizer.Controllers
                 else
                 {
                     _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                    return NotFound();
+                    return BadRequest();
                 }
             }
             else
@@ -522,7 +530,15 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public async Task<ActionResult<Categories>> GetExpensesForSpecificYearAsync([FromQuery] string name, int year, 
             bool giveInPercents)
-        {            
+        {
+            _Logger.LogInformation("*** Method GetExpensesForSpecificYearAsync started. ***");
+
+            if (name == null || name == "")
+            {
+                _Logger.LogInformation("*** Name is null or empty string. ***");
+                return BadRequest();
+            }
+
             if (_dateValidator.ValidateDate(year))
             {
                 Person? person = await _Context.GetPersonByNameAsync(name);
@@ -553,7 +569,7 @@ namespace Finance_Organizer.Controllers
                 else
                 {
                     _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                    return NotFound();
+                    return BadRequest();
                 }
             }
             else

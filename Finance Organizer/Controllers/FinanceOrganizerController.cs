@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using System.Security.Cryptography.Xml;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Finance_Organizer.Controllers
 {
@@ -170,8 +173,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        /* The function that adds transaction for the specific user from the request body. 
-         * It is used for development and testing purposes.*/
+        // It is used for development and testing purposes!
         [HttpPost("AddTransactionFromBody")]
         [Authorize]
         public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name, 
@@ -182,7 +184,7 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                transaction.Categories.PersonId = transaction.PersonId;
+                transaction.Categories.PersonId = person.Id;
 
                 ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
 
@@ -223,7 +225,54 @@ namespace Finance_Organizer.Controllers
         // The function that adds transaction for the specific user.
         [HttpPost("AddTransaction")]
         [Authorize]
-        public async Task<ActionResult<Transaction>> AddTransactionAsync
+        public async Task<ActionResult> AddTransactionAsync([FromQuery] string name,
+            [FromBody] Categories categories)
+        {
+            _Logger.LogInformation("*** Method AddTransactionFromBodyV2Async started. ***");
+
+            if (name == null || name == "")
+            {
+                _Logger.LogWarning("*** Name is null or empty string. ***");
+                return BadRequest();
+            }
+
+            ValidationResult categoriesResult = _CategoriesValidator.Validate(categories);
+
+            if (!categoriesResult.IsValid)
+            {
+                foreach (var error in categoriesResult.Errors)
+                {
+                    _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                }
+
+                return BadRequest();
+            }
+
+            Person? person = await _Context.GetPersonByNameAsync(name);
+
+            if (person != null)
+            {                               
+                Transaction transaction = new Transaction();
+                transaction.PersonId = person.Id;
+                transaction.Categories = categories;
+                transaction.Categories.PersonId = person.Id;
+                
+                person.Transactions.Add(transaction);
+                await _Context.SaveChangesAsync();
+                _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
+                return Ok();
+            }
+            else
+            {
+                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                return NotFound();
+            }
+        }
+
+        // It is used for development and testing purposes!
+        [HttpPost("AddTransactionFromQuery")]
+        [Authorize]
+        public async Task<ActionResult<Transaction>> AddTransactionFromQueryAsync
             ([FromQuery] string name, double meal, double communalServices, double medicine,
             double transport, double purchases, double leisure, double savings)
         {
@@ -233,7 +282,7 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                transaction.Categories.PersonId = transaction.PersonId;
+                transaction.Categories.PersonId = person.Id;
 
                 transaction.Categories.Meal = meal;
                 transaction.Categories.CommunalServices = communalServices;
@@ -288,7 +337,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -394,7 +443,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -437,7 +486,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -481,7 +530,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -535,7 +584,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -588,7 +637,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 
@@ -634,7 +683,7 @@ namespace Finance_Organizer.Controllers
 
             if (name == null || name == "")
             {
-                _Logger.LogInformation("*** Name is null or empty string. ***");
+                _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
             }
 

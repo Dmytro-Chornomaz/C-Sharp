@@ -173,42 +173,38 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        // It is used for development and testing purposes!
+        // It is used for development and testing purposes only!
         [HttpPost("AddTransactionFromBody")]
         [Authorize]
         public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name, 
             [FromBody] Transaction transaction)
         {
+            _Logger.LogInformation("*** Method AddTransactionFromBodyAsync started. ***");
+
+            if (string.IsNullOrEmpty(name))
+            {
+                _Logger.LogWarning("*** Name is null or empty string. ***");
+                return BadRequest();
+            }
+
+            ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
+
+            if (!categoriesResult.IsValid)
+            {
+                foreach (var error in categoriesResult.Errors)
+                {
+                    _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                }
+
+                return BadRequest();
+            }
+
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                transaction.Categories.PersonId = person.Id;
-
-                ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
-
-                if (!transactionResult.IsValid)
-                {
-                    foreach (var error in transactionResult.Errors)
-                    {
-                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-                    }
-
-                    return BadRequest();
-                }
-
-                ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
-
-                if (!categoriesResult.IsValid)
-                {
-                    foreach (var error in categoriesResult.Errors)
-                    {
-                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-                    }
-
-                    return BadRequest();
-                }
+                transaction.Categories.PersonId = person.Id;                               
 
                 person.Transactions.Add(transaction);
                 await _Context.SaveChangesAsync();
@@ -230,7 +226,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method AddTransactionFromBodyV2Async started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -269,7 +265,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        // It is used for development and testing purposes!
+        // It is used for development and testing purposes only!
         [HttpPost("AddTransactionFromQuery")]
         [Authorize]
         public async Task<ActionResult<Transaction>> AddTransactionFromQueryAsync
@@ -335,7 +331,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetLastTransactionAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -441,7 +437,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForThisMonthAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -484,7 +480,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForThisYearAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -528,7 +524,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForSpecificMonthAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -582,7 +578,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForSpecificYearAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -635,7 +631,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForLastWeekAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();
@@ -681,7 +677,7 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GetExpensesForSpecificPeriodAsync started. ***");
 
-            if (name == null || name == "")
+            if (string.IsNullOrEmpty(name))
             {
                 _Logger.LogWarning("*** Name is null or empty string. ***");
                 return BadRequest();

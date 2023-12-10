@@ -121,7 +121,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -166,7 +166,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -211,7 +211,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -221,7 +221,7 @@ namespace Finance_Organizer.Controllers
         public async Task<ActionResult> AddTransactionAsync([FromQuery] string name,
             [FromBody] Categories categories)
         {
-            _Logger.LogInformation("*** Method AddTransactionFromBodyV2Async started. ***");
+            _Logger.LogInformation("*** Method AddTransactionAsync started. ***");
 
             if (string.IsNullOrEmpty(name))
             {
@@ -258,68 +258,9 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
-
-        // It is used for development and testing purposes only!
-        //[HttpPost("AddTransactionFromQuery")]
-        //[Authorize]
-        //public async Task<ActionResult<Transaction>> AddTransactionFromQueryAsync
-        //    ([FromQuery] string name, double meal, double communalServices, double medicine,
-        //    double transport, double purchases, double leisure, double savings)
-        //{
-        //    Person? person = await _Context.GetPersonByNameAsync(name);
-        //    Transaction transaction = new Transaction();
-
-        //    if (person != null)
-        //    {
-        //        transaction.PersonId = person.Id;
-        //        transaction.Categories.PersonId = person.Id;
-
-        //        transaction.Categories.Meal = meal;
-        //        transaction.Categories.CommunalServices = communalServices;
-        //        transaction.Categories.Medicine = medicine;
-        //        transaction.Categories.Transport = transport;
-        //        transaction.Categories.Purchases = purchases;
-        //        transaction.Categories.Leisure = leisure;
-        //        transaction.Categories.Savings = savings;
-
-        //        ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
-
-        //        if (!transactionResult.IsValid)
-        //        {
-        //            foreach (var error in transactionResult.Errors)
-        //            {
-        //                _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-        //            }
-
-        //            return BadRequest();
-        //        }
-
-        //        ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
-
-        //        if (!categoriesResult.IsValid)
-        //        {
-        //            foreach (var error in categoriesResult.Errors)
-        //            {
-        //                _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-        //            }
-
-        //            return BadRequest();
-        //        }
-
-        //        person.Transactions.Add(transaction);
-        //        await _Context.SaveChangesAsync();
-        //        _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
-        //        return transaction;
-        //    }
-        //    else
-        //    {
-        //        _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-        //        return NotFound();
-        //    }
-        //}
 
         // The function that returns the last realized transaction for the specific user.
         [HttpGet("GetLastTransaction")]
@@ -363,6 +304,14 @@ namespace Finance_Organizer.Controllers
         [Authorize]
         public async Task<ActionResult> DeleteLastTransactionAsync([FromQuery] string name, string confirmation)
         {
+            _Logger.LogInformation("*** Method DeleteLastTransactionAsync started. ***");
+
+            if (string.IsNullOrEmpty(name))
+            {
+                _Logger.LogWarning("*** Name is null or empty string. ***");
+                return BadRequest();
+            }
+
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
@@ -395,7 +344,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 
@@ -423,7 +372,7 @@ namespace Finance_Organizer.Controllers
             else
             {
                 _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
+                return BadRequest();
             }
         }
 

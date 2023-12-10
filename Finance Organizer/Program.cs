@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using Finance_Organizer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +78,7 @@ builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddScoped<IValidator<Person>, PersonValidator>();
 builder.Services.AddScoped<IValidator<Transaction>, TransactionValidator>();
 builder.Services.AddScoped<IValidator<Categories>, CategoriesValidator>();
+builder.Services.AddScoped<IValidator<LoginModel>,  LoginModelValidator>();
 builder.Services.AddScoped<DateValidator>();
 
 

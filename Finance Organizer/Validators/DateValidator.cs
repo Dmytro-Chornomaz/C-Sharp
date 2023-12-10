@@ -1,4 +1,4 @@
-﻿namespace Finance_Organizer
+﻿namespace Finance_Organizer.Validators
 {
     public class DateValidator
     {

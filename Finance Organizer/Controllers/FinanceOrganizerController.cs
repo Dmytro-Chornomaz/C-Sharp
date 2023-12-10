@@ -3,12 +3,9 @@ using Finance_Organizer.Database;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using ValidationResult = FluentValidation.Results.ValidationResult;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using System.Security.Cryptography.Xml;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Finance_Organizer.Validators;
 
 namespace Finance_Organizer.Controllers
 {
@@ -187,7 +184,7 @@ namespace Finance_Organizer.Controllers
                 return BadRequest();
             }
 
-            ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
+            ValidationResult categoriesResult = await _CategoriesValidator.ValidateAsync(transaction.Categories);
 
             if (!categoriesResult.IsValid)
             {
@@ -232,7 +229,7 @@ namespace Finance_Organizer.Controllers
                 return BadRequest();
             }
 
-            ValidationResult categoriesResult = _CategoriesValidator.Validate(categories);
+            ValidationResult categoriesResult = await _CategoriesValidator.ValidateAsync(categories);
 
             if (!categoriesResult.IsValid)
             {
@@ -266,63 +263,63 @@ namespace Finance_Organizer.Controllers
         }
 
         // It is used for development and testing purposes only!
-        [HttpPost("AddTransactionFromQuery")]
-        [Authorize]
-        public async Task<ActionResult<Transaction>> AddTransactionFromQueryAsync
-            ([FromQuery] string name, double meal, double communalServices, double medicine,
-            double transport, double purchases, double leisure, double savings)
-        {
-            Person? person = await _Context.GetPersonByNameAsync(name);
-            Transaction transaction = new Transaction();
+        //[HttpPost("AddTransactionFromQuery")]
+        //[Authorize]
+        //public async Task<ActionResult<Transaction>> AddTransactionFromQueryAsync
+        //    ([FromQuery] string name, double meal, double communalServices, double medicine,
+        //    double transport, double purchases, double leisure, double savings)
+        //{
+        //    Person? person = await _Context.GetPersonByNameAsync(name);
+        //    Transaction transaction = new Transaction();
 
-            if (person != null)
-            {
-                transaction.PersonId = person.Id;
-                transaction.Categories.PersonId = person.Id;
+        //    if (person != null)
+        //    {
+        //        transaction.PersonId = person.Id;
+        //        transaction.Categories.PersonId = person.Id;
 
-                transaction.Categories.Meal = meal;
-                transaction.Categories.CommunalServices = communalServices;
-                transaction.Categories.Medicine = medicine;
-                transaction.Categories.Transport = transport;
-                transaction.Categories.Purchases = purchases;
-                transaction.Categories.Leisure = leisure;
-                transaction.Categories.Savings = savings;
+        //        transaction.Categories.Meal = meal;
+        //        transaction.Categories.CommunalServices = communalServices;
+        //        transaction.Categories.Medicine = medicine;
+        //        transaction.Categories.Transport = transport;
+        //        transaction.Categories.Purchases = purchases;
+        //        transaction.Categories.Leisure = leisure;
+        //        transaction.Categories.Savings = savings;
 
-                ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
+        //        ValidationResult transactionResult = _TransactionValidator.Validate(transaction);
 
-                if (!transactionResult.IsValid)
-                {
-                    foreach (var error in transactionResult.Errors)
-                    {
-                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-                    }
+        //        if (!transactionResult.IsValid)
+        //        {
+        //            foreach (var error in transactionResult.Errors)
+        //            {
+        //                _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+        //            }
 
-                    return BadRequest();
-                }
+        //            return BadRequest();
+        //        }
 
-                ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
+        //        ValidationResult categoriesResult = _CategoriesValidator.Validate(transaction.Categories);
 
-                if (!categoriesResult.IsValid)
-                {
-                    foreach (var error in categoriesResult.Errors)
-                    {
-                        _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-                    }
+        //        if (!categoriesResult.IsValid)
+        //        {
+        //            foreach (var error in categoriesResult.Errors)
+        //            {
+        //                _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+        //            }
 
-                    return BadRequest();
-                }
+        //            return BadRequest();
+        //        }
 
-                person.Transactions.Add(transaction);
-                await _Context.SaveChangesAsync();
-                _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
-                return transaction;
-            }
-            else
-            {
-                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return NotFound();
-            }
-        }
+        //        person.Transactions.Add(transaction);
+        //        await _Context.SaveChangesAsync();
+        //        _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
+        //        return transaction;
+        //    }
+        //    else
+        //    {
+        //        _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+        //        return NotFound();
+        //    }
+        //}
 
         // The function that returns the last realized transaction for the specific user.
         [HttpGet("GetLastTransaction")]

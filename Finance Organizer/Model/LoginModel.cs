@@ -1,4 +1,4 @@
-﻿namespace Finance_Organizer
+﻿namespace Finance_Organizer.Model
 {
     public record class LoginModel(string Login, string Password);
 }

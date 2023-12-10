@@ -1,5 +1,7 @@
 ﻿using Finance_Organizer.Database;
 using Finance_Organizer.Model;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,15 +20,18 @@ namespace Finance_Organizer.Controllers
         private readonly string _MyAudience;
         private readonly ILogger<LoginController> _Logger;
         private readonly ApplicationDbContext _Context;
+        private readonly IValidator<LoginModel> _LoginModelValidator;
 
 
-        public LoginController(IConfiguration configuration, ILogger<LoginController> logger, ApplicationDbContext context)
+        public LoginController(IConfiguration configuration, ILogger<LoginController> logger, ApplicationDbContext context,
+            IValidator<LoginModel> loginModelValidator)
         {
             _MySecret = configuration.GetValue<string>("Auth:Secret")!;
             _MyIssuer = configuration.GetValue<string>("Auth:Issuer")!;
             _MyAudience = configuration.GetValue<string>("Auth:Audience")!;
             _Logger = logger;
             _Context = context;
+            _LoginModelValidator = loginModelValidator;
         }
 
         // The function that generates a security token.
@@ -35,9 +40,15 @@ namespace Finance_Organizer.Controllers
         {
             _Logger.LogInformation("*** Method GenerateTokenAsync started. ***");
 
-            if (request.Login == null || request.Password == null)
+            ValidationResult loginModelResult = await _LoginModelValidator.ValidateAsync(request);
+
+            if (!loginModelResult.IsValid)
             {
-                _Logger.LogInformation("*** Request is null. ***");
+                foreach (var error in loginModelResult.Errors)
+                {
+                    _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                }
+
                 return BadRequest();
             }
 
@@ -78,36 +89,36 @@ namespace Finance_Organizer.Controllers
             }
             else
             {
-                _Logger.LogInformation("*** The person was not found in the database. ***");
+                _Logger.LogInformation("*** Login or/and password are wrong. ***");
                 return Unauthorized();
             }            
         }        
 
         // The function that verifies the token compliance.
-        [HttpGet("VerifyToken")]
-        public bool VerifyToken(string token)
-        {
-            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_MySecret));
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = _MyIssuer,
-                    ValidAudience = _MyAudience,
-                    IssuerSigningKey = mySecurityKey
-                }, out SecurityToken validatedToken);
-            }
-            catch
-            {
-                _Logger.LogWarning("*** The token is incorrect. ***");
-                return false;
-            }
-            _Logger.LogInformation("*** The token is correct. ***");
-            return true;
-        }
+        //[HttpGet("VerifyToken")]
+        //public bool VerifyToken(string token)
+        //{
+        //    var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_MySecret));
+        //    var tokenHandler = new JwtSecurityTokenHandler();
+        //    try
+        //    {
+        //        tokenHandler.ValidateToken(token, new TokenValidationParameters
+        //        {
+        //            ValidateIssuerSigningKey = true,
+        //            ValidateIssuer = true,
+        //            ValidateAudience = true,
+        //            ValidIssuer = _MyIssuer,
+        //            ValidAudience = _MyAudience,
+        //            IssuerSigningKey = mySecurityKey
+        //        }, out SecurityToken validatedToken);
+        //    }
+        //    catch
+        //    {
+        //        _Logger.LogWarning("*** The token is incorrect. ***");
+        //        return false;
+        //    }
+        //    _Logger.LogInformation("*** The token is correct. ***");
+        //    return true;
+        //}
     }
 }

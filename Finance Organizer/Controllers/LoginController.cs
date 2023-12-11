@@ -21,10 +21,11 @@ namespace Finance_Organizer.Controllers
         private readonly ILogger<LoginController> _Logger;
         private readonly ApplicationDbContext _Context;
         private readonly IValidator<LoginModel> _LoginModelValidator;
+        private readonly SaltedHash _SaltedHash;
 
 
         public LoginController(IConfiguration configuration, ILogger<LoginController> logger, ApplicationDbContext context,
-            IValidator<LoginModel> loginModelValidator)
+            IValidator<LoginModel> loginModelValidator, SaltedHash saltedHash)
         {
             _MySecret = configuration.GetValue<string>("Auth:Secret")!;
             _MyIssuer = configuration.GetValue<string>("Auth:Issuer")!;
@@ -32,6 +33,7 @@ namespace Finance_Organizer.Controllers
             _Logger = logger;
             _Context = context;
             _LoginModelValidator = loginModelValidator;
+            _SaltedHash = saltedHash;
         }
 
         // The function that generates a security token.
@@ -51,9 +53,8 @@ namespace Finance_Organizer.Controllers
 
                 return BadRequest();
             }
-
-            SaltedHash saltedHash = new SaltedHash();
-            string hashedRequestPassword = saltedHash.ComputeSaltedHash(request.Password);
+            
+            string hashedRequestPassword = _SaltedHash.ComputeSaltedHash(request.Password);
 
             Person? person = await _Context.GetPersonByNameAndPasswordAsync(request.Login, hashedRequestPassword);
 
@@ -76,7 +77,6 @@ namespace Finance_Organizer.Controllers
                 SecurityToken secutityToken = tokenHandler.CreateToken(tokenDescriptor);
                 _Logger.LogInformation("*** The token was successfully created. ***");
                 string token = tokenHandler.WriteToken(secutityToken);
-                //return token;
 
                 var responseObj = new
                 {
@@ -93,32 +93,5 @@ namespace Finance_Organizer.Controllers
                 return Unauthorized();
             }            
         }        
-
-        // The function that verifies the token compliance.
-        //[HttpGet("VerifyToken")]
-        //public bool VerifyToken(string token)
-        //{
-        //    var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_MySecret));
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    try
-        //    {
-        //        tokenHandler.ValidateToken(token, new TokenValidationParameters
-        //        {
-        //            ValidateIssuerSigningKey = true,
-        //            ValidateIssuer = true,
-        //            ValidateAudience = true,
-        //            ValidIssuer = _MyIssuer,
-        //            ValidAudience = _MyAudience,
-        //            IssuerSigningKey = mySecurityKey
-        //        }, out SecurityToken validatedToken);
-        //    }
-        //    catch
-        //    {
-        //        _Logger.LogWarning("*** The token is incorrect. ***");
-        //        return false;
-        //    }
-        //    _Logger.LogInformation("*** The token is correct. ***");
-        //    return true;
-        //}
     }
 }

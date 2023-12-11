@@ -19,10 +19,13 @@ namespace Finance_Organizer.Controllers
         private readonly IValidator<Transaction> _TransactionValidator;
         private readonly IValidator<Categories> _CategoriesValidator;
         private readonly DateValidator _dateValidator;
+        private readonly IValidator<LoginModel> _LoginModelValidator;
+        private readonly SaltedHash _SaltedHash;
 
-        public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger, 
-            IValidator<Transaction> transactionValidator, IValidator<Categories> categoriesValidator, 
-            IValidator<Person> personValidator, DateValidator dateValidator)
+        public FinanceOrganizerController(ApplicationDbContext context, ILogger<FinanceOrganizerController> logger,
+            IValidator<Transaction> transactionValidator, IValidator<Categories> categoriesValidator,
+            IValidator<Person> personValidator, DateValidator dateValidator, IValidator<LoginModel> loginModelValidator,
+            SaltedHash saltedHash)
         {
             _Context = context;
             _Logger = logger;
@@ -30,61 +33,47 @@ namespace Finance_Organizer.Controllers
             _CategoriesValidator = categoriesValidator;
             _PersonValidator = personValidator;
             _dateValidator = dateValidator;
+            _LoginModelValidator = loginModelValidator;
+            _SaltedHash = saltedHash;
         }
 
         // The function that creates a new user.
         [HttpPost("CreatePerson")]
-        public async Task<ActionResult<Person>> CreatePersonAsync([FromQuery] string name)
+        public async Task<ActionResult> CreatePersonAsync([FromBody] LoginModel request)
         {
-            if (name != null)
+            _Logger.LogInformation("*** Method CreatePersonAsync started. ***");
+
+            ValidationResult loginModelResult = await _LoginModelValidator.ValidateAsync(request);
+
+            if (!loginModelResult.IsValid)
             {
-                if (_Context.Users.Any(x => x.Name == name))
+                foreach (var error in loginModelResult.Errors)
                 {
-                    _Logger.LogWarning($"*** This name user exists. ***");
-                    return BadRequest();
-                }
-                else
-                {
-                    int id;
-
-                    if (_Context.Users.Count() == 0)
-                    {
-                        id = 1;
-                    }
-                    else
-                    {
-                        id = _Context.Users.Max(x => x.Id) + 1;
-                    }
-
-                    Person person = new Person
-                    {
-                        Id = id,
-                        Name = name
-                    };
-
-                    ValidationResult result = _PersonValidator.Validate(person);
-
-                    if (!result.IsValid)
-                    {
-                        foreach (var error in result.Errors)
-                        {
-                            _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
-                        }
-
-                        return BadRequest();
-                    }
-
-                    await _Context.Users.AddAsync(person);
-                    await _Context.SaveChangesAsync();
-                    _Logger.LogInformation($"*** Creation of a user with the name {name} ***");
-                    return person;
+                    _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
                 }
 
+                return BadRequest("Incorrect login or/and password!");
+            }
+
+            if (_Context.Users.Any(x => x.Name == request.Login))
+            {
+                _Logger.LogWarning($"*** This name user exists. ***");
+                return BadRequest("This name user exists!");
             }
             else
-            {
-                _Logger.LogWarning($"*** Did not enter a user name. ***");
-                return BadRequest();
+            {                
+                string password = _SaltedHash.ComputeSaltedHash(request.Password);
+
+                Person person = new Person
+                {
+                    Name = request.Login,
+                    Password = password
+                };
+                
+                await _Context.Users.AddAsync(person);
+                await _Context.SaveChangesAsync();
+                _Logger.LogInformation($"*** Creation of a user with the name {request.Login} ***");
+                return Ok();
             }
         }
 
@@ -173,7 +162,7 @@ namespace Finance_Organizer.Controllers
         // It is used for development and testing purposes only!
         [HttpPost("AddTransactionFromBody")]
         [Authorize]
-        public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name, 
+        public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name,
             [FromBody] Transaction transaction)
         {
             _Logger.LogInformation("*** Method AddTransactionFromBodyAsync started. ***");
@@ -201,7 +190,7 @@ namespace Finance_Organizer.Controllers
             if (person != null)
             {
                 transaction.PersonId = person.Id;
-                transaction.Categories.PersonId = person.Id;                               
+                transaction.Categories.PersonId = person.Id;
 
                 person.Transactions.Add(transaction);
                 await _Context.SaveChangesAsync();
@@ -244,12 +233,12 @@ namespace Finance_Organizer.Controllers
             Person? person = await _Context.GetPersonByNameAsync(name);
 
             if (person != null)
-            {                               
+            {
                 Transaction transaction = new Transaction();
                 transaction.PersonId = person.Id;
                 transaction.Categories = categories;
                 transaction.Categories.PersonId = person.Id;
-                
+
                 person.Transactions.Add(transaction);
                 await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"*** Addition a new transaction for a user by the name of {name}. ***");
@@ -302,7 +291,7 @@ namespace Finance_Organizer.Controllers
         // The function that deletes the last realized transaction for the specific user.
         [HttpDelete("DeleteLastTransaction")]
         [Authorize]
-        public async Task<ActionResult> DeleteLastTransactionAsync([FromQuery] string name, string confirmation)
+        public async Task<ActionResult> DeleteLastTransactionAsync([FromQuery] string name)
         {
             _Logger.LogInformation("*** Method DeleteLastTransactionAsync started. ***");
 
@@ -316,30 +305,21 @@ namespace Finance_Organizer.Controllers
 
             if (person != null)
             {
-                if (confirmation.ToLower() == "yes")
+                if (person.Transactions.Count() != 0)
                 {
-                    if (person.Transactions.Count() != 0)
-                    {
-                        var lastTransaction = person.Transactions.LastOrDefault();
-                        _Context.Transactions.Remove(lastTransaction!);
-                        var categoriesFromLastTransaction = lastTransaction!.Categories;
-                        _Context.Categories.Remove(categoriesFromLastTransaction);
-                        await _Context.SaveChangesAsync();
-                        _Logger.LogInformation($"*** Deleting a last transaction for a user by the name of {name}. ***");
-                        return NoContent();
-                    }
-                    else
-                    {
-                        _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
-                        return NotFound();
-                    }
+                    var lastTransaction = person.Transactions.LastOrDefault();
+                    _Context.Transactions.Remove(lastTransaction!);
+                    var categoriesFromLastTransaction = lastTransaction!.Categories;
+                    _Context.Categories.Remove(categoriesFromLastTransaction);
+                    await _Context.SaveChangesAsync();
+                    _Logger.LogInformation($"*** Deleting a last transaction for a user by the name of {name}. ***");
+                    return NoContent();
                 }
                 else
                 {
-                    _Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
-                    return Ok();
+                    _Logger.LogInformation($"*** The user by the name of {name} has not transactions yet. ***");
+                    return NotFound();
                 }
-
             }
             else
             {
@@ -465,7 +445,7 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the specific month.
         [HttpGet("GetExpensesForSpecificMonth")]
         [Authorize]
-        public async Task<ActionResult<Categories>> GetExpensesForSpecificMonthAsync([FromQuery] string name, int month, 
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificMonthAsync([FromQuery] string name, int month,
             int year, bool giveInPercents)
         {
             _Logger.LogInformation("*** Method GetExpensesForSpecificMonthAsync started. ***");
@@ -477,7 +457,7 @@ namespace Finance_Organizer.Controllers
             }
 
             if (_dateValidator.ValidateDate(month, year))
-            {                
+            {
                 Person? person = await _Context.GetPersonByNameAsync(name);
 
                 if (person != null)
@@ -519,7 +499,7 @@ namespace Finance_Organizer.Controllers
         // The function that returns the specific user expenses for the specific year.
         [HttpGet("GetExpensesForSpecificYear")]
         [Authorize]
-        public async Task<ActionResult<Categories>> GetExpensesForSpecificYearAsync([FromQuery] string name, int year, 
+        public async Task<ActionResult<Categories>> GetExpensesForSpecificYearAsync([FromQuery] string name, int year,
             bool giveInPercents)
         {
             _Logger.LogInformation("*** Method GetExpensesForSpecificYearAsync started. ***");
@@ -618,7 +598,7 @@ namespace Finance_Organizer.Controllers
         [HttpGet("GetExpensesForSpecificPeriod")]
         [Authorize]
         public async Task<ActionResult<Categories>> GetExpensesForSpecificPeriodAsync
-            ([FromQuery] string name, int dayStart, int monthStart, int yearStart, 
+            ([FromQuery] string name, int dayStart, int monthStart, int yearStart,
             int dayEnd, int monthEnd, int yearEnd, bool giveInPercents)
         {
             _Logger.LogInformation("*** Method GetExpensesForSpecificPeriodAsync started. ***");

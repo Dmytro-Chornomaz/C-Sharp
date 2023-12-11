@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Finance_Organizer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,7 +81,7 @@ builder.Services.AddScoped<IValidator<Transaction>, TransactionValidator>();
 builder.Services.AddScoped<IValidator<Categories>, CategoriesValidator>();
 builder.Services.AddScoped<IValidator<LoginModel>,  LoginModelValidator>();
 builder.Services.AddScoped<DateValidator>();
-
+builder.Services.AddScoped<SaltedHash>();
 
 string connection = builder.Configuration.GetConnectionString("DefaultConnection")!;
 

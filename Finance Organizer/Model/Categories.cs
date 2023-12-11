@@ -25,7 +25,7 @@ namespace Finance_Organizer.Model
         public double Transport { get => transport; set => transport = Math.Round(value, 2); }
         public double Purchases { get => purchases; set => purchases = Math.Round(value, 2); }
         public double Leisure { get => leisure; set => leisure = Math.Round(value, 2); }
-        public double SummaryExpenses => Meal + CommunalServices + Medicine + Transport + Purchases + Leisure;
+        public double SummaryExpenses => Math.Round(Meal + CommunalServices + Medicine + Transport + Purchases + Leisure, 2); 
         public double Savings { get => savings; set => savings = Math.Round(value, 2); }
 
         /* This function summarizes the categories of expenses from different transactions, 

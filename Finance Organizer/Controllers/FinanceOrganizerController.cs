@@ -61,7 +61,7 @@ namespace Finance_Organizer.Controllers
                 return BadRequest("This name user exists!");
             }
             else
-            {                
+            {
                 string password = _SaltedHash.ComputeSaltedHash(request.Password);
 
                 Person person = new Person
@@ -69,7 +69,7 @@ namespace Finance_Organizer.Controllers
                     Name = request.Login,
                     Password = password
                 };
-                
+
                 await _Context.Users.AddAsync(person);
                 await _Context.SaveChangesAsync();
                 _Logger.LogInformation($"*** Creation of a user with the name {request.Login} ***");
@@ -117,44 +117,53 @@ namespace Finance_Organizer.Controllers
         // The function that deletes the specific user. It uses the confirmation word "yes".
         [HttpDelete("DeletePerson")]
         [Authorize]
-        public async Task<ActionResult> DeletePersonAsync([FromQuery] string name, string confirmation)
+        public async Task<ActionResult> DeletePersonAsync([FromBody] LoginModel request)
         {
-            Person? person = await _Context.GetPersonByNameAsync(name);
+            _Logger.LogInformation("*** Method DeletePersonAsync started. ***");
+
+            ValidationResult loginModelResult = await _LoginModelValidator.ValidateAsync(request);
+
+            if (!loginModelResult.IsValid)
+            {
+                foreach (var error in loginModelResult.Errors)
+                {
+                    _Logger.LogWarning($"The property {error.PropertyName} has the error: {error.ErrorMessage}");
+                }
+
+                return BadRequest("Incorrect login or/and password!");
+            }
+
+            string password = _SaltedHash.ComputeSaltedHash(request.Password);
+
+            Person? person = await _Context.GetPersonByNameAndPasswordAsync(request.Login, password);
 
             if (person != null)
             {
-                if (confirmation.ToLower() == "yes")
+                var transactionsForDeleting = await _Context.Transactions
+                                               .Where(x => x.PersonId == person.Id).ToListAsync();
+
+                foreach (var transaction in transactionsForDeleting)
                 {
-                    _Context.Users.Remove(person);
-
-                    var transactionsForDeleting = person.Transactions.ToList();
-
-                    foreach (var transaction in transactionsForDeleting)
-                    {
-                        _Context.Transactions.Remove(transaction);
-                    }
-
-                    var categoriesForDeleting = await _Context.Categories
-                                                   .Where(x => x.PersonId == person.Id).ToListAsync();
-
-                    foreach (var cat in categoriesForDeleting)
-                    {
-                        _Context.Categories.Remove(cat);
-                    }
-
-                    await _Context.SaveChangesAsync();
-                    _Logger.LogInformation($"*** Deleting a user by the name of {name}. ***");
-                    return NoContent();
+                    _Context.Transactions.Remove(transaction);
                 }
-                else
+
+                var categoriesForDeleting = await _Context.Categories
+                                               .Where(x => x.PersonId == person.Id).ToListAsync();
+
+                foreach (var cat in categoriesForDeleting)
                 {
-                    _Logger.LogInformation($"*** Entered the wrong confirmation word. ***");
-                    return Ok();
+                    _Context.Categories.Remove(cat);
                 }
+
+                _Context.Users.Remove(person);
+
+                await _Context.SaveChangesAsync();
+                _Logger.LogInformation($"*** Deleting a user by the name of {request.Login}. ***");
+                return NoContent();
             }
             else
             {
-                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
+                _Logger.LogWarning($"*** No user by the name of {request.Login} in the list. ***");
                 return BadRequest();
             }
         }

@@ -13,6 +13,7 @@ namespace Finance_Organizer.Validators
             RuleFor(x => x.Transport).InclusiveBetween(0, 1000000000);
             RuleFor(x => x.Purchases).InclusiveBetween(0, 1000000000);
             RuleFor(x => x.Leisure).InclusiveBetween(0, 1000000000);
+            RuleFor(x => x.Others).InclusiveBetween(0, 1000000000);
             RuleFor(x => x.Savings).InclusiveBetween(0, 1000000000);            
         }
     }

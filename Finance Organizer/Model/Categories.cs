@@ -17,6 +17,7 @@ namespace Finance_Organizer.Model
         private double transport = 0;
         private double purchases = 0;
         private double leisure = 0;
+        private double others = 0;
         private double savings = 0;
 
         public double Meal { get => meal; set => meal = Math.Round(value, 2); }
@@ -25,6 +26,7 @@ namespace Finance_Organizer.Model
         public double Transport { get => transport; set => transport = Math.Round(value, 2); }
         public double Purchases { get => purchases; set => purchases = Math.Round(value, 2); }
         public double Leisure { get => leisure; set => leisure = Math.Round(value, 2); }
+        public double Others { get => others; set => others = Math.Round(value, 2); }
         public double SummaryExpenses => Math.Round(Meal + CommunalServices + Medicine + Transport + Purchases + Leisure, 2); 
         public double Savings { get => savings; set => savings = Math.Round(value, 2); }
 
@@ -42,6 +44,7 @@ namespace Finance_Organizer.Model
                 result.Transport += cat.Transport;
                 result.Purchases += cat.Purchases;
                 result.Leisure += cat.Leisure;
+                result.Others += cat.Others;
                 result.Savings += cat.Savings;
             }
             return result;
@@ -61,6 +64,7 @@ namespace Finance_Organizer.Model
             resultInPercents.Transport = categories.Transport / onePercent;
             resultInPercents.Purchases = categories.Purchases / onePercent;
             resultInPercents.Leisure = categories.Leisure / onePercent;
+            resultInPercents.Others = categories.Others / onePercent;
             resultInPercents.Savings = categories.Savings / onePercent;
 
             return resultInPercents;

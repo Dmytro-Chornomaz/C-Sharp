@@ -54,4 +54,4 @@
 <img src="https://github.com/Dmytro-Chornomaz/C-Sharp/blob/master/screenshots/error.png" />
 </details>
 
-📽 And here's a short (~5 minutes) <a href="https://youtu.be/T-zJzzzKfbs" target="_blank">video</a> that will also help you better understand the Financial Organizer.
+📽 And here's a short (~5 minutes) <a href="https://youtu.be/T-zJzzzKfbs" target="_blank">VIDEO</a> that will also help you better understand the Financial Organizer.

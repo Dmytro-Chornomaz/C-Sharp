@@ -77,44 +77,7 @@ namespace Finance_Organizer.Controllers
             }
         }
 
-        // The function that returns a list of all existing users. It is used for development and testing purposes.
-        [HttpGet("GetAllPersons")]
-        [Authorize]
-        public async Task<ActionResult<List<Person>>> GetAllPersonsAsync()
-        {
-            if (_Context.Users.Count() != 0)
-            {
-                _Logger.LogInformation($"*** Creation of users list. ***");
-                return await _Context.Users.ToListAsync();
-            }
-            else
-            {
-                _Logger.LogWarning($"*** No users in a list. ***");
-                return NotFound();
-            }
-
-        }
-
-        // The function that returns the specific user. It is used for development and testing purposes.
-        [HttpGet("GetPerson")]
-        [Authorize]
-        public async Task<ActionResult<Person?>> GetPersonAsync([FromQuery] string name)
-        {
-            Person? person = await _Context.GetPersonByNameAsync(name);
-
-            if (person != null)
-            {
-                _Logger.LogInformation($"*** Getting a user by the name of {name}. ***");
-                return person;
-            }
-            else
-            {
-                _Logger.LogWarning($"*** No user by the name of {name} in the list. ***");
-                return BadRequest();
-            }
-        }
-
-        // The function that deletes the specific user. It uses the confirmation word "yes".
+        // The function that deletes the specific user.
         [HttpDelete("DeletePerson")]
         [Authorize]
         public async Task<ActionResult> DeletePersonAsync([FromBody] LoginModel request)
@@ -169,12 +132,12 @@ namespace Finance_Organizer.Controllers
         }
 
         // It is used for development and testing purposes only!
-        [HttpPost("AddTransactionFromBody")]
+        [HttpPost("AddTransactionDevAndTest")]
         [Authorize]
-        public async Task<ActionResult<Transaction>> AddTransactionFromBodyAsync([FromQuery] string name,
+        public async Task<ActionResult<Transaction>> AddTransactionDevAndTestAsync([FromQuery] string name,
             [FromBody] Transaction transaction)
         {
-            _Logger.LogInformation("*** Method AddTransactionFromBodyAsync started. ***");
+            _Logger.LogInformation("*** Method AddTransactionDevAndTestAsync started. ***");
 
             if (string.IsNullOrEmpty(name))
             {

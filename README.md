@@ -1,6 +1,6 @@
 <h1 align="center">Hi there, I'm <a href="https://linkedin.com/in/dmytro-chornomaz-3a477b246" target="_blank">Dmytro</a> 
 <img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/></h1>
-<h3 align="center">.NET/React developer from Ukraine 🇺🇦</h3>
+<h3 align="center">.NET+React developer from Ukraine 🇺🇦</h3>
 
 ![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=csharp&logoColor=white)
 ![.Net](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)

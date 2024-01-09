@@ -8,6 +8,7 @@ namespace Finance_Organizer.Validators
         public PersonValidator()
         {
             RuleFor(x => x.Name).NotEmpty().Length(2, 20);
+            RuleFor(x => x.Password).NotEmpty();
         }
     }
 }
